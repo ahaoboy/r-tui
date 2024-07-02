@@ -1,7 +1,8 @@
-import { choice, getTerminalShape, Color } from "@r-tui/share"
+import { choice, Color } from "@r-tui/share"
 import React, { useEffect, useRef, useState } from "react"
 import { Box } from "../src/ui"
 import { onInput } from "../src/hook/input"
+import { getTerminalShape } from "@r-tui/terminal"
 
 const initSnakeLen = 10
 const speed = 100

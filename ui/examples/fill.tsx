@@ -1,6 +1,6 @@
 import React from "react"
-import { Box, render } from "../src"
-import { getTerminalShape } from "@r-tui/share"
+import { Box } from "../src"
+import { getTerminalShape } from "@r-tui/terminal"
 
 export default function App() {
   const { width, height } = getTerminalShape()

@@ -15,11 +15,14 @@ export class Pixel {
     public color?: Color,
     public backgroundColor?: Color,
     public bold = false,
-  ) { }
+  ) {}
 
   toAnsi(): string {
     let s = ""
-    if (!this.char.length && (this.backgroundColor === "default" || this.backgroundColor === undefined)) {
+    if (
+      !this.char.length &&
+      (this.backgroundColor === "default" || this.backgroundColor === undefined)
+    ) {
       return s
     }
 
@@ -81,5 +84,5 @@ export class Canvas {
     return list.join("")
   }
 
-  toHtml(theme: Theme = "vscode") { }
+  toHtml(theme: Theme = "vscode") {}
 }

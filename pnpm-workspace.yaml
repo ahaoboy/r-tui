@@ -2,4 +2,5 @@ packages:
   - 'ui'
   - 'canvas'
   - 'share'
+  - 'terminal'
   - 'flex'

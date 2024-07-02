@@ -1,17 +1,15 @@
 import createReconciler from "react-reconciler"
 import { DefaultEventPriority } from "react-reconciler/constants"
-import { getTerminalShape, type Shape } from "@r-tui/share"
 import {
   appendChildNode,
   insertBeforeNode,
   removeChildNode,
-  type MouseEvent,
   type KeyEvent,
   type MousePos,
 } from "@r-tui/flex"
 import { applyProps } from "@r-tui/flex"
 const NO_CONTEXT = {}
-import { TDom, TFlex } from "./flex"
+import { TDom, TFlex, createTDom } from "./flex"
 
 export function createCustomReconciler(flex: TFlex) {
   return createReconciler({
@@ -41,7 +39,7 @@ export function createCustomReconciler(flex: TFlex) {
       hostContext: unknown,
       internalHandle: any,
     ): unknown => {
-      const node = new TDom()
+      const node = createTDom()
       applyProps(node, props)
       return node
     },
@@ -147,12 +145,12 @@ export type RenderConfig = {
   enableMouseMoveEvent: boolean
   fps: number
   customRender: (node: TDom) => void
-  customDispatch: (
-    node: TDom,
-    pos: MousePos,
-    event: KeyEvent,
-    mouseEvent?: MouseEvent,
-  ) => void
+  // customDispatch: (
+  //   node: TDom,
+  //   pos: MousePos,
+  //   event: KeyEvent,
+  //   mouseEvent?: BaseMouseEvent<TDom>,
+  // ) => void
 }
 
 export const defaultFPS = 30
@@ -174,10 +172,8 @@ export function render(reactNode: React.ReactNode, flex = new TFlex()) {
   let lastW = 0
   let lastH = 0
   const RootId = `__flex_root_${Math.random().toString(16)}`
-  function renderRootNode({ width, height }: Shape) {
-    if (!width || !height || (lastW === width && lastH === height)) {
-      return
-    }
+  function renderRootNode() {
+    const { width, height } = flex.canvas.shape
     lastW = width
     lastH = height
     const { attributes, layoutNode } = flex.rootNode
@@ -185,9 +181,9 @@ export function render(reactNode: React.ReactNode, flex = new TFlex()) {
     attributes.width = width
     attributes.height = height
     attributes.position = "relative"
-    attributes.color = "default"
+    attributes.color = undefined
+    attributes.backgroundColor = undefined
     attributes.display = "flex"
-    attributes.backgroundColor = "default"
     attributes.padding = 0
     attributes.borderSize = 0
     attributes.x = 0
@@ -204,6 +200,5 @@ export function render(reactNode: React.ReactNode, flex = new TFlex()) {
     flex.renderToConsole()
   }
 
-  const shape = getTerminalShape()
-  renderRootNode(shape)
+  renderRootNode()
 }

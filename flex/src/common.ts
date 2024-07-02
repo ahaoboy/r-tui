@@ -1,4 +1,4 @@
-import { type DOMElement, setAttribute } from "./dom"
+import { type BaseDom, setAttribute } from "./dom"
 export const propsToSkip = {
   children: true,
   ref: true,
@@ -10,7 +10,7 @@ export const propsToSkip = {
   className: true,
 }
 
-export function readAttr(node: any, attrName: string) {
+export function readAttr(node: BaseDom<any, any, any>, attrName: string) {
   while (node && typeof node.attributes[attrName] === "undefined") {
     if (node.parentNode) {
       node = node.parentNode
@@ -20,10 +20,12 @@ export function readAttr(node: any, attrName: string) {
   }
   return node.attributes[attrName]
 }
+
 export function isEvent(name: string) {
   return name[0] === "o" && name[1] === "n"
 }
-export function applyProps<D extends DOMElement>(node: D, props: any) {
+
+export function applyProps<D extends BaseDom>(node: D, props: any) {
   for (const name in props) {
     if (!propsToSkip[name as keyof typeof propsToSkip])
       setAttribute(node, name, props[name])

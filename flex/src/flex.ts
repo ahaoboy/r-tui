@@ -1,5 +1,5 @@
+import { BaseDom, BaseMouseEvent } from "./dom"
 import type { KeyEvent, Len, MousePos } from "./type"
-import { type DOMElement, MouseEvent } from "./dom"
 import {
   Rect,
   type Shape,
@@ -8,7 +8,7 @@ import {
   parsePercentage,
 } from "@r-tui/share"
 
-function hasTLBR(node: DOMElement): boolean {
+function hasTLBR<D extends BaseDom>(node: D): boolean {
   for (const name of ["top", "left", "bottom", "right"] as const) {
     if (typeof node.attributes[name] !== "undefined") {
       return true
@@ -16,8 +16,9 @@ function hasTLBR(node: DOMElement): boolean {
   }
   return false
 }
-export function lenToNumber(
-  node: DOMElement,
+
+export function lenToNumber<D extends BaseDom>(
+  node: D,
   len: Len | undefined,
   isX: boolean,
   defaultValue = 0,
@@ -44,7 +45,7 @@ export function lenToNumber(
   return v
 }
 
-function skipFlexLayout(node: DOMElement): boolean {
+function skipFlexLayout<D extends BaseDom>(node: D): boolean {
   return (
     node.attributes.position === "absolute" ||
     hasTLBR(node) ||
@@ -55,23 +56,23 @@ function skipFlexLayout(node: DOMElement): boolean {
 
 const defaultZIndexStep = 1
 
-function getAxisAttrSize(n: DOMElement, isX: boolean) {
+function getAxisAttrSize<D extends BaseDom>(n: D, isX: boolean) {
   return isX ? n.attributes.width : n.attributes.height
 }
-function getAxisPosition(n: DOMElement, isX: boolean) {
+function getAxisPosition<D extends BaseDom>(n: D, isX: boolean) {
   return isX ? n.layoutNode.x : n.layoutNode.y
 }
-function getAxisSize(n: DOMElement, isX: boolean) {
+function getAxisSize<D extends BaseDom>(n: D, isX: boolean) {
   return isX ? n.layoutNode.width : n.layoutNode.height
 }
-function setAxisPosition(n: DOMElement, x: number, isX: boolean) {
+function setAxisPosition<D extends BaseDom>(n: D, x: number, isX: boolean) {
   if (isX) {
     n.layoutNode.x = x
   } else {
     n.layoutNode.y = x
   }
 }
-function setAxisSize(n: DOMElement, x: number, isX: boolean) {
+function setAxisSize<D extends BaseDom>(n: D, x: number, isX: boolean) {
   if (isX) {
     n.layoutNode.width = x
   } else {
@@ -79,34 +80,43 @@ function setAxisSize(n: DOMElement, x: number, isX: boolean) {
   }
 }
 
-export abstract class Flex<D extends DOMElement> {
-  rootNode: D
-  abstract customCreateNode(): D
-  abstract customIsRootNode(node: D): boolean
-  abstract customCreateRootNode(): D
+export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
+  rootNode: BaseDom<A, E, P>
+  abstract customCreateNode(): BaseDom<A, E, P>
+  abstract customIsRootNode(node: BaseDom<A, E, P>): boolean
+  abstract customCreateRootNode(): BaseDom<A, E, P>
   abstract customRenderNode(
-    node: D,
+    node: BaseDom<A, E, P>,
     currentRenderCount: number,
     deep: number,
   ): void
 
-  abstract customMeasureNode(node: D): Shape
+  abstract customMeasureNode(node: BaseDom<A, E, P>): Shape
   abstract customComputeZIndex(
-    node: D,
+    node: BaseDom<A, E, P>,
     zIndex: number,
     currentRenderCount: number,
     deep: number,
   ): void
+
+  // event
+  abstract customCreateMouseEvent(
+    node: BaseDom<A, E, P> | undefined,
+    x: number,
+    y: number,
+  ): BaseMouseEvent<A, E, P>
 
   constructor() {
     this.rootNode = this.customCreateRootNode()
   }
 
   private renderCount = 0
+  private maxRenderCount = 1 << 10
   rerender() {
-    this.renderNode(this.rootNode, this.renderCount++, 0)
+    this.renderCount = (this.renderCount + 1) % this.maxRenderCount
+    this.renderNode(this.rootNode, this.renderCount, 0)
   }
-  private computedNodeTLBR(node: D) {
+  private computedNodeTLBR(node: BaseDom<A, E, P>) {
     const { attributes, layoutNode } = node
     let parent = node.parentNode ? node.parentNode : node
     while (parent && parent.attributes.position === "absolute") {
@@ -233,7 +243,7 @@ export abstract class Flex<D extends DOMElement> {
     }
   }
 
-  private computeZIndex(node: DOMElement) {
+  private computeZIndex(node: BaseDom<A, E, P>) {
     const { attributes } = node
 
     if (typeof attributes.zIndex === "number") {
@@ -253,7 +263,11 @@ export abstract class Flex<D extends DOMElement> {
     }
     return deep
   }
-  private computeNodeSize(node: D, currentRenderCount: number, deep: number) {
+  private computeNodeSize(
+    node: BaseDom<A, E, P>,
+    currentRenderCount: number,
+    deep: number,
+  ) {
     const { attributes, layoutNode } = node
     const isX = node.attributes.flexDirection !== "row"
 
@@ -404,7 +418,7 @@ export abstract class Flex<D extends DOMElement> {
   }
 
   private computeNodeSizeAxis(
-    node: DOMElement,
+    node: BaseDom<A, E, P>,
     v: number | string | undefined,
     isX: boolean,
     extraSize: number,
@@ -429,7 +443,7 @@ export abstract class Flex<D extends DOMElement> {
     throw new Error(`computeNodeSize error, not support length: ${v}`)
   }
 
-  private computedNodeAlign(node: DOMElement) {
+  private computedNodeAlign(node: BaseDom<A, E, P>) {
     const { attributes } = node
     const isX = attributes.flexDirection !== "row"
 
@@ -827,7 +841,10 @@ export abstract class Flex<D extends DOMElement> {
 
     throw new Error(`not support flex align: ${justifyContent} ${alignItems}`)
   }
-  private computeNodeLayout(node: D, currentRenderCount: number) {
+  private computeNodeLayout(
+    node: BaseDom<A, E, P>,
+    currentRenderCount: number,
+  ) {
     const { layoutNode, attributes } = node
 
     if (layoutNode.computedLayoutCount === currentRenderCount) {
@@ -870,7 +887,8 @@ export abstract class Flex<D extends DOMElement> {
     // log("----computeLayout end: ", JSON.stringify(node.layoutNode))
   }
 
-  private computedLayout(node: D, currentRenderCount: number) {
+  private computedLayout(node: BaseDom<A, E, P>, currentRenderCount: number) {
+    // console.log("computedLayout", node.attributes.text)
     if (node.layoutNode.computedLayoutCount === currentRenderCount) {
       return
     }
@@ -878,9 +896,10 @@ export abstract class Flex<D extends DOMElement> {
     this.computeNodeSize(node, currentRenderCount, 0)
     // const st2 = +Date.now()
     this.computeNodeLayout(node, currentRenderCount)
-    // console.log("layout time: ", st2 - st1, st3 - st2)
+    // // console.log("layout time: ", st2 - st1, st3 - st2)
   }
-  private renderNode(node: D, currentRenderCount: number, deep: number) {
+  renderNode(node: BaseDom<A, E, P>, currentRenderCount: number, deep: number) {
+    // console.log("renderNode", node.attributes.text)
     this.computedLayout(this.rootNode, currentRenderCount)
     this.customRenderNode(node, currentRenderCount, deep)
 
@@ -889,12 +908,14 @@ export abstract class Flex<D extends DOMElement> {
     }
   }
 
-  private dispatchEvent(
-    node: DOMElement,
+  dispatchEvent(
+    node: BaseDom<A, E, P>,
     pos: MousePos,
     event: KeyEvent,
-    mouseEvent = new MouseEvent(undefined, pos.x, pos.y),
+    mouseEvent = this.customCreateMouseEvent(undefined, pos.x, pos.y),
+    // mouseEvent = new BaseMouseEvent<D>(undefined, pos.x, pos.y),
   ) {
+    // console.log('dispatchEvent: ', node.attributes.id, node.attributes.hide, node.attributes.pointerEvents)
     if (node.attributes.hide || node.attributes.pointerEvents === "none") {
       return
     }
@@ -905,10 +926,10 @@ export abstract class Flex<D extends DOMElement> {
   }
 
   private dispatchEventForNode(
-    node: DOMElement,
+    node: BaseDom<A, E, P>,
     pos: MousePos,
     event: KeyEvent,
-    mouseEvent: MouseEvent,
+    mouseEvent = this.customCreateMouseEvent(undefined, pos.x, pos.y),
   ) {
     if (!mouseEvent.bubbles) {
       return
@@ -945,7 +966,10 @@ export abstract class Flex<D extends DOMElement> {
             attributes.onMouseMove?.(mouseEvent)
           }
         } else if (!layoutNode._mouseDown && event.event === "down") {
+          // console.log('====event.event: ', attributes.onMouseDown, event.event)
           if (!layoutNode._mouseDown) {
+            // @ts-ignore
+            // console.log('====event.event2222222: ', node.attributes.onMouseDown, node.onMouseDown, event.event)
             attributes.onMouseDown?.(mouseEvent)
             attributes.onClick?.(mouseEvent)
             layoutNode._mouseDown = true
@@ -971,7 +995,8 @@ export abstract class Flex<D extends DOMElement> {
         layoutNode._mouseIn = false
       }
     } else {
-      const mouseEvent = new MouseEvent(node, pos.x, pos.y)
+      // const mouseEvent = new BaseMouseEvent(node, pos.x, pos.y)
+      const mouseEvent = this.customCreateMouseEvent(node, pos.x, pos.y)
       // mouseEvent.target = undefined
       if (layoutNode._mouseIn) {
         attributes.onMouseLeave?.(mouseEvent)

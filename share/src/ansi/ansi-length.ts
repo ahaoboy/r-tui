@@ -1,6 +1,7 @@
 // https://github.com/sindresorhus/string-length/blob/main/index.js
 import { stripAnsi } from "./strip-ansi"
 
+// TODO: support Intl
 // const segmenter = new Intl.Segmenter();
 
 export function stringLength(

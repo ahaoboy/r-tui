@@ -2,7 +2,6 @@
   "name": "r-tui",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "files": ["dist", "readme.md", "package.json"],
   "description": "react terminal UI",
   "scripts": {

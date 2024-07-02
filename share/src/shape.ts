@@ -1,13 +1,7 @@
-import process from "node:process"
 import { stringLength } from "./ansi/ansi-length"
 export type Shape = {
   width: number
   height: number
-}
-export function getTerminalShape(): Shape {
-  const width = process.stdout.columns
-  const height = process.stdout.rows
-  return { width, height }
 }
 
 export function getStringShape(s: string): Shape {
