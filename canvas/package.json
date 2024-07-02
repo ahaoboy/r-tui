@@ -1,0 +1,21 @@
+{
+  "name": "@r-tui/canvas",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "type": "module",
+  "scripts": {
+    "bundle": "esbuild ./test/* --bundle --outdir=dist",
+    "build": "tsc -p ./tsconfig.build.json",
+    "dev": "tsc -p ./tsconfig.build.json -w",
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@r-tui/share": "workspace:*",
+    "string-length": "^6.0.0"
+  }
+}

@@ -1,0 +1,5 @@
+packages:
+  - 'ui'
+  - 'canvas'
+  - 'share'
+  - 'flex'
