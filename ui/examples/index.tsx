@@ -1,5 +1,5 @@
 import React from "react"
+import Example from "./base"
 import { render } from "../src/render"
-import Example from "./snake"
 
 render(<Example />)
