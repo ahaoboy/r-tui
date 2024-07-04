@@ -1,5 +1,4 @@
 import { BaseDom, BaseMouseEvent } from "./dom"
-import type { KeyEvent, Len, MousePos } from "./type"
 import {
   Rect,
   type Shape,
@@ -7,6 +6,7 @@ import {
   isPercentage,
   parsePercentage,
 } from "@r-tui/share"
+import { Len } from "./type"
 
 function hasTLBR<D extends BaseDom>(node: D): boolean {
   for (const name of ["top", "left", "bottom", "right"] as const) {
@@ -80,20 +80,20 @@ function setAxisSize<D extends BaseDom>(n: D, x: number, isX: boolean) {
   }
 }
 
-export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
-  rootNode: BaseDom<A, E, P>
-  abstract customCreateNode(): BaseDom<A, E, P>
-  abstract customIsRootNode(node: BaseDom<A, E, P>): boolean
-  abstract customCreateRootNode(): BaseDom<A, E, P>
+export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
+  rootNode: BaseDom<A, P, E>
+  abstract customCreateNode(): BaseDom<A, P, E>
+  abstract customIsRootNode(node: BaseDom<A, P, E>): boolean
+  abstract customCreateRootNode(): BaseDom<A, P, E>
   abstract customRenderNode(
-    node: BaseDom<A, E, P>,
+    node: BaseDom<A, P, E>,
     currentRenderCount: number,
     deep: number,
   ): void
 
-  abstract customMeasureNode(node: BaseDom<A, E, P>): Shape
+  abstract customMeasureNode(node: BaseDom<A, P, E>): Shape
   abstract customComputeZIndex(
-    node: BaseDom<A, E, P>,
+    node: BaseDom<A, P, E>,
     zIndex: number,
     currentRenderCount: number,
     deep: number,
@@ -101,10 +101,17 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
 
   // event
   abstract customCreateMouseEvent(
-    node: BaseDom<A, E, P> | undefined,
+    node: BaseDom<A, P, E> | undefined,
     x: number,
     y: number,
-  ): BaseMouseEvent<A, E, P>
+    hover: boolean,
+    event: E,
+  ): BaseMouseEvent<A, P, E>
+  abstract customIsWheelDown(e: BaseMouseEvent<A, P, E>): boolean
+  abstract customIsWheelUp(e: BaseMouseEvent<A, P, E>): boolean
+  abstract customIsMousePress(e: BaseMouseEvent<A, P, E>): boolean
+  abstract customIsMouseDown(e: BaseMouseEvent<A, P, E>): boolean
+  abstract customIsMouseUp(e: BaseMouseEvent<A, P, E>): boolean
 
   constructor() {
     this.rootNode = this.customCreateRootNode()
@@ -116,7 +123,7 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
     this.renderCount = (this.renderCount + 1) % this.maxRenderCount
     this.renderNode(this.rootNode, this.renderCount, 0)
   }
-  private computedNodeTLBR(node: BaseDom<A, E, P>) {
+  private computedNodeTLBR(node: BaseDom<A, P, E>) {
     const { attributes, layoutNode } = node
     let parent = node.parentNode ? node.parentNode : node
     while (parent && parent.attributes.position === "absolute") {
@@ -243,7 +250,7 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
     }
   }
 
-  private computeZIndex(node: BaseDom<A, E, P>) {
+  private computeZIndex(node: BaseDom<A, P, E>) {
     const { attributes } = node
 
     if (typeof attributes.zIndex === "number") {
@@ -264,7 +271,7 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
     return deep
   }
   private computeNodeSize(
-    node: BaseDom<A, E, P>,
+    node: BaseDom<A, P, E>,
     currentRenderCount: number,
     deep: number,
   ) {
@@ -418,7 +425,7 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
   }
 
   private computeNodeSizeAxis(
-    node: BaseDom<A, E, P>,
+    node: BaseDom<A, P, E>,
     v: number | string | undefined,
     isX: boolean,
     extraSize: number,
@@ -443,7 +450,7 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
     throw new Error(`computeNodeSize error, not support length: ${v}`)
   }
 
-  private computedNodeAlign(node: BaseDom<A, E, P>) {
+  private computedNodeAlign(node: BaseDom<A, P, E>) {
     const { attributes } = node
     const isX = attributes.flexDirection !== "row"
 
@@ -842,7 +849,7 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
     throw new Error(`not support flex align: ${justifyContent} ${alignItems}`)
   }
   private computeNodeLayout(
-    node: BaseDom<A, E, P>,
+    node: BaseDom<A, P, E>,
     currentRenderCount: number,
   ) {
     const { layoutNode, attributes } = node
@@ -887,7 +894,7 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
     // log("----computeLayout end: ", JSON.stringify(node.layoutNode))
   }
 
-  private computedLayout(node: BaseDom<A, E, P>, currentRenderCount: number) {
+  private computedLayout(node: BaseDom<A, P, E>, currentRenderCount: number) {
     // console.log("computedLayout", node.attributes.text)
     if (node.layoutNode.computedLayoutCount === currentRenderCount) {
       return
@@ -898,7 +905,7 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
     this.computeNodeLayout(node, currentRenderCount)
     // // console.log("layout time: ", st2 - st1, st3 - st2)
   }
-  renderNode(node: BaseDom<A, E, P>, currentRenderCount: number, deep: number) {
+  renderNode(node: BaseDom<A, P, E>, currentRenderCount: number, deep: number) {
     // console.log("renderNode", node.attributes.text)
     this.computedLayout(this.rootNode, currentRenderCount)
     this.customRenderNode(node, currentRenderCount, deep)
@@ -908,30 +915,21 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
     }
   }
 
-  dispatchEvent(
-    node: BaseDom<A, E, P>,
-    pos: MousePos,
-    event: KeyEvent,
-    mouseEvent = this.customCreateMouseEvent(undefined, pos.x, pos.y),
-    // mouseEvent = new BaseMouseEvent<D>(undefined, pos.x, pos.y),
-  ) {
-    // console.log('dispatchEvent: ', node.attributes.id, node.attributes.hide, node.attributes.pointerEvents)
+  dispatchMouseEvent(node: BaseDom<A, P, E>, event: BaseMouseEvent<A, P, E>) {
     if (node.attributes.hide || node.attributes.pointerEvents === "none") {
       return
     }
     for (const c of node.childNodes) {
-      this.dispatchEvent(c, pos, event, mouseEvent)
+      this.dispatchMouseEvent(c, event)
     }
-    this.dispatchEventForNode(node, pos, event, mouseEvent)
+    this.dispatchMouseEventForNode(node, event)
   }
 
-  private dispatchEventForNode(
-    node: BaseDom<A, E, P>,
-    pos: MousePos,
-    event: KeyEvent,
-    mouseEvent = this.customCreateMouseEvent(undefined, pos.x, pos.y),
+  private dispatchMouseEventForNode(
+    node: BaseDom<A, P, E>,
+    event: BaseMouseEvent<A, P, E>,
   ) {
-    if (!mouseEvent.bubbles) {
+    if (!event.bubbles) {
       return
     }
     if (node.attributes.pointerEvents === "none") {
@@ -941,62 +939,65 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
       return
     }
     const { attributes, layoutNode } = node
-    if (node.layoutNode.hasPoint(pos.x, pos.y)) {
-      if (typeof mouseEvent.target === "undefined") {
-        mouseEvent.target = node
+    if (node.layoutNode.hasPoint(event.x, event.y)) {
+      if (typeof event.target === "undefined") {
+        event.target = node
       }
 
-      if (pos.hover) {
-        if (event.key_name === "WHEEL_DOWN") {
-          attributes.onWheelDown?.(mouseEvent)
+      if (event.hover) {
+        if (this.customIsWheelDown(event)) {
+          attributes.onWheelDown?.(event)
           return
         }
-        if (event.key_name === "WHEEL_UP") {
-          attributes.onWheelUp?.(mouseEvent)
+        if (this.customIsWheelUp(event)) {
+          attributes.onWheelUp?.(event)
           return
         }
 
-        if (event.event === "press") {
+        if (this.customIsMousePress(event)) {
           if (layoutNode._mouseDown) {
-            attributes.onMousePress?.(mouseEvent)
+            attributes.onMousePress?.(event)
           } else if (!layoutNode._mouseIn) {
-            attributes.onMouseEnter?.(mouseEvent)
+            attributes.onMouseEnter?.(event)
             layoutNode._mouseIn = true
           } else {
-            attributes.onMouseMove?.(mouseEvent)
+            attributes.onMouseMove?.(event)
           }
-        } else if (!layoutNode._mouseDown && event.event === "down") {
-          // console.log('====event.event: ', attributes.onMouseDown, event.event)
+        } else if (!layoutNode._mouseDown && this.customIsMouseDown(event)) {
           if (!layoutNode._mouseDown) {
-            // @ts-ignore
-            // console.log('====event.event2222222: ', node.attributes.onMouseDown, node.onMouseDown, event.event)
-            attributes.onMouseDown?.(mouseEvent)
-            attributes.onClick?.(mouseEvent)
+            attributes.onMouseDown?.(event)
+            attributes.onClick?.(event)
             layoutNode._mouseDown = true
             layoutNode._mouseUp = false
             if (!layoutNode._focus) {
               layoutNode._focus = true
-              attributes.onFocus?.(mouseEvent)
+              attributes.onFocus?.(event)
             }
           }
-        } else if (event.event === "up") {
+        } else if (this.customIsMouseUp(event)) {
           if (!layoutNode._mouseUp) {
-            attributes.onMouseUp?.(mouseEvent)
+            attributes.onMouseUp?.(event)
             layoutNode._mouseDown = false
             layoutNode._mouseUp = true
             if (!layoutNode._focus) {
-              attributes.onFocus?.(mouseEvent)
+              attributes.onFocus?.(event)
               layoutNode._focus = true
             }
           }
         }
       } else if (layoutNode._mouseIn) {
-        attributes.onMouseLeave?.(mouseEvent)
+        attributes.onMouseLeave?.(event)
         layoutNode._mouseIn = false
       }
     } else {
-      // const mouseEvent = new BaseMouseEvent(node, pos.x, pos.y)
-      const mouseEvent = this.customCreateMouseEvent(node, pos.x, pos.y)
+      const mouseEvent = this.customCreateMouseEvent(
+        node,
+        event.x,
+        event.y,
+        event.hover,
+        event.event,
+      )
+
       // mouseEvent.target = undefined
       if (layoutNode._mouseIn) {
         attributes.onMouseLeave?.(mouseEvent)
@@ -1006,7 +1007,7 @@ export abstract class Flex<A extends {}, E extends {}, P extends {} = {}> {
 
       if (
         layoutNode._focus &&
-        (event.event === "down" || event.event === "up")
+        (this.customIsMouseDown(event) || this.customIsMouseUp(event))
       ) {
         attributes.onBlur?.(mouseEvent)
         layoutNode._focus = false

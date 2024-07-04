@@ -20,8 +20,18 @@ export default function App() {
 }
 
 ```
+![flex](./assets/flex.svg)
 
-![counter-ui](./assets/flex.svg)
+## example
+
+### [snake](./ui/examples/snake.tsx)
+![snake](./assets/snake.gif)
+
+### [ls](./ui/examples/ls.tsx)
+![ls](./assets/ls.gif)
+
+
+
 
 
 

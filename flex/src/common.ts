@@ -21,10 +21,6 @@ export function readAttr(node: BaseDom<any, any, any>, attrName: string) {
   return node.attributes[attrName]
 }
 
-export function isEvent(name: string) {
-  return name[0] === "o" && name[1] === "n"
-}
-
 export function applyProps<D extends BaseDom>(node: D, props: any) {
   for (const name in props) {
     if (!propsToSkip[name as keyof typeof propsToSkip])

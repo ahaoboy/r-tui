@@ -24,7 +24,7 @@ export interface TDomProps {
 }
 
 const DefaultFps = 30
-export interface TDom extends BaseDom<TDomAttrs, {}, TDomProps> {}
+export interface TDom extends BaseDom<TDomAttrs, TDomProps, {}> {}
 
 export function createTDom(nodeName = BoxName): TDom {
   return {
@@ -35,25 +35,30 @@ export function createTDom(nodeName = BoxName): TDom {
     props: { nodeName },
   }
 }
-export class TFlex extends Flex<TDomAttrs, {}, TDomProps> {
+export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   customCreateMouseEvent(
-    node: BaseDom<TDomAttrs, {}, TDomProps> | undefined,
+    node: BaseDom<TDomAttrs, TDomProps, {}> | undefined,
     x: number,
     y: number,
-  ): BaseMouseEvent<TDomAttrs, {}, TDomProps> {
-    return {
-      target: node,
-      x,
-      y,
-      bubbles: true,
-      defaultPrevented: false,
-      offsetX: 0,
-      offsetY: 0,
-      stopPropagation() {},
-      preventDefault() {},
-      clientX: 0,
-      clientY: 0,
-    }
+    hover: boolean,
+    event: {},
+  ): BaseMouseEvent<TDomAttrs, TDomProps, {}> {
+    throw new Error("Method not implemented.")
+  }
+  customIsWheelDown(e: BaseMouseEvent<TDomAttrs, TDomProps, {}>): boolean {
+    throw new Error("Method not implemented.")
+  }
+  customIsWheelUp(e: BaseMouseEvent<TDomAttrs, TDomProps, {}>): boolean {
+    throw new Error("Method not implemented.")
+  }
+  customIsMousePress(e: BaseMouseEvent<TDomAttrs, TDomProps, {}>): boolean {
+    throw new Error("Method not implemented.")
+  }
+  customIsMouseDown(e: BaseMouseEvent<TDomAttrs, TDomProps, {}>): boolean {
+    throw new Error("Method not implemented.")
+  }
+  customIsMouseUp(e: BaseMouseEvent<TDomAttrs, TDomProps, {}>): boolean {
+    throw new Error("Method not implemented.")
   }
   canvas = new Canvas(getTerminalShape())
   renderToConsole: () => void = throttle(

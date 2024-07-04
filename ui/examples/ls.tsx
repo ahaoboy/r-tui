@@ -26,7 +26,11 @@ export default function App() {
   const [dirInfo, setDirInfo] = useState<Info[]>([])
   const [fileInfo, setFileInfo] = useState<Info[]>([])
   const handleRef = useRef<(s: string) => void>()
-
+  const line = "-".repeat(
+    [...dirInfo, ...fileInfo]
+      .map((i) => i.name.length)
+      .reduce((a, b) => Math.max(a, b), 0),
+  )
   function init(root: string[]) {
     setRoot(root)
     const currentPath = root.join("/")
@@ -54,7 +58,9 @@ export default function App() {
       case Enter: {
         const name = dirInfo[select].name
         if (name === "..") {
-          root.pop()
+          if (root.length > 1) {
+            root.pop()
+          }
         } else {
           root.push(dirInfo[select].name)
         }
@@ -76,6 +82,7 @@ export default function App() {
   return (
     <Box width={"100%"} height={"100%"} display="flex" flexDirection="row">
       <Box color="yellow" text={currentPath} />
+      <Box color="yellow" text={line} />
       {dirInfo.map((i, k) => (
         <Box
           key={i.name}

@@ -2,7 +2,6 @@ import { Rect } from "@r-tui/share"
 import type {
   AlignContent,
   AlignType,
-  BaseDomProps,
   FlexDirection,
   FlexWrap,
   Len,
@@ -10,74 +9,58 @@ import type {
   TextAlign,
 } from "./type"
 
-export interface BaseMouseEvent<
+export class BaseMouseEvent<
   A extends {} = {},
-  E extends {} = {},
   P extends {} = {},
+  E extends {} = {},
 > {
-  target?: BaseDom<A, E, P>
-  bubbles: boolean
+  event: E
   x: number
   y: number
-  defaultPrevented: boolean
-  offsetX: number
-  offsetY: number
-  stopPropagation(): void
-  clientY: number
-  clientX: number
-  preventDefault(): void
+  // Whether the mouse moves out of the window
+  hover: boolean
+  target: BaseDom<A, P, E> | undefined
+  bubbles = true
+  defaultPrevented = false
+
+  constructor(
+    node: BaseDom<A, P, E> | undefined,
+    x: number,
+    y: number,
+    hover: boolean,
+    event: E,
+  ) {
+    this.target = node
+    this.x = x
+    this.y = y
+    this.event = event
+    this.hover = hover
+  }
+
+  preventDefault() {
+    this.defaultPrevented = true
+  }
+
+  get clientX() {
+    return this.x
+  }
+
+  get clientY() {
+    return this.y
+  }
+
+  get offsetX() {
+    return this.x - (this.target?.layoutNode.x || 0)
+  }
+
+  get offsetY() {
+    return this.y - (this.target?.layoutNode.y || 0)
+  }
+
+  stopPropagation() {
+    this.bubbles = false
+  }
 }
-// export class BaseMouseEvent<T extends BaseDom> {
-//   private _x: number
-//   private _y: number
-//   private _target: T | undefined
-//   bubbles = true
-//   defaultPrevented = false
-//   constructor(node: T | undefined, x: number, y: number) {
-//     this._target = node
-//     this._x = x
-//     this._y = y
-//   }
-
-//   preventDefault() {
-//     this.defaultPrevented = true
-//   }
-
-//   get target(): T {
-//     return this._target!
-//   }
-//   set target(node: T | undefined) {
-//     this._target = node
-//   }
-
-//   get x() {
-//     return this._x
-//   }
-
-//   get y() {
-//     return this._y
-//   }
-
-//   get clientX() {
-//     return this._x
-//   }
-
-//   get clientY() {
-//     return this._y
-//   }
-
-//   get offsetX() {
-//     return this.x - this.target.layoutNode.x
-//   }
-
-//   get offsetY() {
-//     return this.y - this.target.layoutNode.y
-//   }
-
-//   stopPropagation() {
-//     this.bubbles = false
-//   }
-// }
 
 export class LayoutNode extends Rect {
   constructor(
@@ -118,8 +101,8 @@ export const EventName = [
 
 export interface BaseDom<
   A extends {} = {},
-  E extends {} = {},
   P extends {} = {},
+  E extends {} = {},
 > {
   attributes: Partial<
     {
@@ -153,21 +136,21 @@ export interface BaseDom<
       display: "flex" | "none"
       alignContent: AlignContent
       pointerEvents: "none"
-      onClick?: (e: BaseMouseEvent<BaseDom<A, E, P>>) => void
-      onMouseDown?: (e: BaseMouseEvent<BaseDom<A, E, P>>) => void
-      onMouseUp?: (e: BaseMouseEvent<BaseDom<A, E, P>>) => void
-      onMouseMove?: (e: BaseMouseEvent<BaseDom<A, E, P>>) => void
-      onMousePress?: (e: BaseMouseEvent<BaseDom<A, E, P>>) => void
-      onMouseEnter?: (e: BaseMouseEvent<BaseDom<A, E, P>>) => void
-      onMouseLeave?: (e: BaseMouseEvent<BaseDom<A, E, P>>) => void
-      onWheelDown?: (e: BaseMouseEvent<BaseDom<A, E, P>>) => void
-      onWheelUp?: (e: BaseMouseEvent<BaseDom<A, E, P>>) => void
-      onBlur?: (e: BaseMouseEvent<BaseDom<A, E, P>>) => void
-      onFocus?: (e: BaseMouseEvent<BaseDom<A, E, P>>) => void
+      onClick?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
+      onMouseDown?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
+      onMouseUp?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
+      onMouseMove?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
+      onMousePress?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
+      onMouseEnter?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
+      onMouseLeave?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
+      onWheelDown?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
+      onWheelUp?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
+      onBlur?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
+      onFocus?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
     } & A
   >
-  childNodes: this[]
-  parentNode: this | undefined
+  childNodes: BaseDom<A, P, E>[]
+  parentNode: BaseDom<A, P, E> | undefined
   layoutNode: LayoutNode
   props: P
 }

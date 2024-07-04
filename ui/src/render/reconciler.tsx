@@ -1,12 +1,6 @@
 import createReconciler from "react-reconciler"
 import { DefaultEventPriority } from "react-reconciler/constants"
-import {
-  appendChildNode,
-  insertBeforeNode,
-  removeChildNode,
-  type KeyEvent,
-  type MousePos,
-} from "@r-tui/flex"
+import { appendChildNode, insertBeforeNode, removeChildNode } from "@r-tui/flex"
 import { applyProps } from "@r-tui/flex"
 const NO_CONTEXT = {}
 import { TDom, TFlex, createTDom } from "./flex"
@@ -145,12 +139,6 @@ export type RenderConfig = {
   enableMouseMoveEvent: boolean
   fps: number
   customRender: (node: TDom) => void
-  // customDispatch: (
-  //   node: TDom,
-  //   pos: MousePos,
-  //   event: KeyEvent,
-  //   mouseEvent?: BaseMouseEvent<TDom>,
-  // ) => void
 }
 
 export const defaultFPS = 30

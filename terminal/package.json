@@ -1,6 +1,6 @@
 {
   "name": "@r-tui/terminal",
-  "version": "0.1.4-alpha.0",
+  "version": "0.1.4",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
