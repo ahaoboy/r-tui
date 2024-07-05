@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Box } from "../src"
+import { Box } from "../"
 
 export default function App() {
   const [count, setCount] = useState(0)
@@ -16,12 +16,7 @@ export default function App() {
       justifyContent="center"
       alignItems="center"
     >
-      <Box
-        position="absolute"
-        left={count}
-        color="red"
-        text={count.toString()}
-      />
+      <Box position="absolute" x={count} color="red" text={count.toString()} />
     </Box>
   )
 }

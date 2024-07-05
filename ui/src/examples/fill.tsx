@@ -1,5 +1,5 @@
 import React from "react"
-import { Box } from "../src"
+import { Box } from "../"
 import { getTerminalShape } from "@r-tui/terminal"
 
 export default function App() {

@@ -1,7 +1,7 @@
 import { choice, Color } from "@r-tui/share"
 import React, { useEffect, useRef, useState } from "react"
-import { Box } from "../src/ui"
-import { onInput } from "../src/hook/input"
+import { Box } from "../ui"
+import { onInput } from "../hook/input"
 import { getTerminalShape } from "@r-tui/terminal"
 
 const initSnakeLen = 10

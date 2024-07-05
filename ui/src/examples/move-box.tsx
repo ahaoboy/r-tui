@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
-import { Box } from "../src"
-import { Down, Left, Right, Up, onInput } from "../src/hook/input"
+import { Box } from "../"
+import { Down, Left, Right, Up, onInput } from "../hook/input"
 
 export default function App() {
   const [x, setX] = useState(0)

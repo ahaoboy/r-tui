@@ -24,12 +24,15 @@ export default function App() {
 
 ## example
 
-### [snake](./ui/examples/snake.tsx)
+### [snake](./ui/src/examples/snake.tsx)
 ![snake](./assets/snake.gif)
 
-### [ls](./ui/examples/ls.tsx)
+### [ls](./ui/src/examples/ls.tsx)
 ![ls](./assets/ls.gif)
 
+
+### [life game](./ui/src/examples/life.tsx)
+![life game](./assets/life.gif)
 
 
 

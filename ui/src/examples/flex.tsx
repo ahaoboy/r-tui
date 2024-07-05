@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react"
-import { Box, render } from "../src"
+import React from "react"
+import { Box } from "../"
 
 export default function App() {
   return (

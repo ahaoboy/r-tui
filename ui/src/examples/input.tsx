@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react"
-import { Box, render } from "../src"
-import { useInput } from "../src/hook/input"
+import React from "react"
+import { Box } from "../"
+import { useInput } from "../hook/input"
 
 export default function App() {
   const key = useInput()

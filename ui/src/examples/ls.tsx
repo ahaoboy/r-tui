@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
-import { Box, render } from "../src"
+import { Box, render } from "../"
 import child_process from "node:child_process"
-import { Down, Enter, Tab, Up, offInput, onInput } from "../src/hook/input"
+import { Down, Enter, Tab, Up, offInput, onInput } from "../hook/input"
 
 type Info = {
   name: string
