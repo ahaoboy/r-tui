@@ -990,17 +990,17 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
         layoutNode._mouseIn = false
       }
     } else {
-      const mouseEvent = this.customCreateMouseEvent(
-        node,
-        event.x,
-        event.y,
-        event.hover,
-        event.event,
-      )
+      // const mouseEvent = this.customCreateMouseEvent(
+      //   node,
+      //   event.x,
+      //   event.y,
+      //   event.hover,
+      //   event.event,
+      // )
 
       // mouseEvent.target = undefined
       if (layoutNode._mouseIn) {
-        attributes.onMouseLeave?.(mouseEvent)
+        attributes.onMouseLeave?.(event)
         layoutNode._mouseIn = false
         // layoutNode._mouseUp = false
       }
@@ -1009,7 +1009,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
         layoutNode._focus &&
         (this.customIsMouseDown(event) || this.customIsMouseUp(event))
       ) {
-        attributes.onBlur?.(mouseEvent)
+        attributes.onBlur?.(event)
         layoutNode._focus = false
         // layoutNode._mouseIn = false
         // layoutNode._mouseUp = false

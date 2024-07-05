@@ -22,15 +22,15 @@ export class BaseMouseEvent<
   target: BaseDom<A, P, E> | undefined
   bubbles = true
   defaultPrevented = false
-
+  source: BaseDom<A, P, E> | undefined
   constructor(
-    node: BaseDom<A, P, E> | undefined,
+    source: BaseDom<A, P, E> | undefined,
     x: number,
     y: number,
     hover: boolean,
     event: E,
   ) {
-    this.target = node
+    this.source = source
     this.x = x
     this.y = y
     this.event = event
