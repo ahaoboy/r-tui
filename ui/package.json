@@ -1,6 +1,6 @@
 {
   "name": "@r-tui/ui",
-  "version": "0.1.4",
+  "version": "0.1.5-alpha.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.js",

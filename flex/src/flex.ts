@@ -915,7 +915,11 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
     }
   }
 
-  private dispatchMouseEventInner(node: BaseDom<A, P, E>, event: BaseMouseEvent<A, P, E>, dispatchMap: Record<EventName, BaseDom<A, P, E>[]>) {
+  private dispatchMouseEventInner(
+    node: BaseDom<A, P, E>,
+    event: BaseMouseEvent<A, P, E>,
+    dispatchMap: Record<EventName, BaseDom<A, P, E>[]>,
+  ) {
     if (node.attributes.hide || node.attributes.pointerEvents === "none") {
       return
     }
@@ -926,17 +930,17 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
   }
   dispatchMouseEvent(node: BaseDom<A, P, E>, event: BaseMouseEvent<A, P, E>) {
     const dm: Record<EventName, BaseDom<A, P, E>[]> = {
-      "onClick": [],
-      "onMouseDown": [],
-      "onMouseUp": [],
-      "onMouseMove": [],
-      "onMousePress": [],
-      "onMouseEnter": [],
-      "onMouseLeave": [],
-      "onWheelDown": [],
-      "onWheelUp": [],
-      "onBlur": [],
-      "onFocus": [],
+      onClick: [],
+      onMouseDown: [],
+      onMouseUp: [],
+      onMouseMove: [],
+      onMousePress: [],
+      onMouseEnter: [],
+      onMouseLeave: [],
+      onWheelDown: [],
+      onWheelUp: [],
+      onBlur: [],
+      onFocus: [],
     }
     this.dispatchMouseEventInner(node, event, dm)
 
@@ -950,7 +954,9 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
         nodes[0].attributes[name]?.(event)
       }
 
-      const sorted = nodes.sort((a, b) => (b.attributes.zIndex || 0) - (a.attributes.zIndex || 0))
+      const sorted = nodes.sort(
+        (a, b) => (b.attributes.zIndex || 0) - (a.attributes.zIndex || 0),
+      )
       for (const n of sorted) {
         if (!event.bubbles) {
           continue
@@ -963,7 +969,8 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
   private dispatchMouseEventForNode(
     node: BaseDom<A, P, E>,
     event: BaseMouseEvent<A, P, E>,
-    dispatchMap: Record<EventName, BaseDom<A, P, E>[]>) {
+    dispatchMap: Record<EventName, BaseDom<A, P, E>[]>,
+  ) {
     if (!event.bubbles) {
       return
     }
