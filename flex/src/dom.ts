@@ -85,7 +85,7 @@ export class LayoutNode extends Rect {
   }
 }
 
-export const EventName = [
+export const EventNameList = [
   "onClick",
   "onMouseDown",
   "onMouseUp",
@@ -98,6 +98,8 @@ export const EventName = [
   "onBlur",
   "onFocus",
 ] as const
+
+export type EventName = (typeof EventNameList)[number]
 
 export interface BaseDom<
   A extends {} = {},
@@ -136,17 +138,17 @@ export interface BaseDom<
       display: "flex" | "none"
       alignContent: AlignContent
       pointerEvents: "none"
-      onClick?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
-      onMouseDown?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
-      onMouseUp?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
-      onMouseMove?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
-      onMousePress?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
-      onMouseEnter?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
-      onMouseLeave?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
-      onWheelDown?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
-      onWheelUp?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
-      onBlur?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
-      onFocus?: (e: BaseMouseEvent<BaseDom<A, P, E>>) => void
+      onClick?: (e: BaseMouseEvent<A, P, E>) => void
+      onMouseDown?: (e: BaseMouseEvent<A, P, E>) => void
+      onMouseUp?: (e: BaseMouseEvent<A, P, E>) => void
+      onMouseMove?: (e: BaseMouseEvent<A, P, E>) => void
+      onMousePress?: (e: BaseMouseEvent<A, P, E>) => void
+      onMouseEnter?: (e: BaseMouseEvent<A, P, E>) => void
+      onMouseLeave?: (e: BaseMouseEvent<A, P, E>) => void
+      onWheelDown?: (e: BaseMouseEvent<A, P, E>) => void
+      onWheelUp?: (e: BaseMouseEvent<A, P, E>) => void
+      onBlur?: (e: BaseMouseEvent<A, P, E>) => void
+      onFocus?: (e: BaseMouseEvent<A, P, E>) => void
     } & A
   >
   childNodes: BaseDom<A, P, E>[]

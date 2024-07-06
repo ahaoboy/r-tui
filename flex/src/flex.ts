@@ -1,4 +1,4 @@
-import { BaseDom, BaseMouseEvent } from "./dom"
+import { BaseDom, BaseMouseEvent, EventName, EventNameList } from "./dom"
 import {
   Rect,
   type Shape,
@@ -915,20 +915,55 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
     }
   }
 
-  dispatchMouseEvent(node: BaseDom<A, P, E>, event: BaseMouseEvent<A, P, E>) {
+  private dispatchMouseEventInner(node: BaseDom<A, P, E>, event: BaseMouseEvent<A, P, E>, dispatchMap: Record<EventName, BaseDom<A, P, E>[]>) {
     if (node.attributes.hide || node.attributes.pointerEvents === "none") {
       return
     }
     for (const c of node.childNodes) {
-      this.dispatchMouseEvent(c, event)
+      this.dispatchMouseEventInner(c, event, dispatchMap)
     }
-    this.dispatchMouseEventForNode(node, event)
+    this.dispatchMouseEventForNode(node, event, dispatchMap)
+  }
+  dispatchMouseEvent(node: BaseDom<A, P, E>, event: BaseMouseEvent<A, P, E>) {
+    const dm: Record<EventName, BaseDom<A, P, E>[]> = {
+      "onClick": [],
+      "onMouseDown": [],
+      "onMouseUp": [],
+      "onMouseMove": [],
+      "onMousePress": [],
+      "onMouseEnter": [],
+      "onMouseLeave": [],
+      "onWheelDown": [],
+      "onWheelUp": [],
+      "onBlur": [],
+      "onFocus": [],
+    }
+    this.dispatchMouseEventInner(node, event, dm)
+
+    for (const name of EventNameList) {
+      const nodes = dm[name]
+      if (!nodes.length) {
+        continue
+      }
+
+      if (nodes.length === 1) {
+        nodes[0].attributes[name]?.(event)
+      }
+
+      const sorted = nodes.sort((a, b) => (b.attributes.zIndex || 0) - (a.attributes.zIndex || 0))
+      for (const n of sorted) {
+        if (!event.bubbles) {
+          continue
+        }
+        n.attributes[name]?.(event)
+      }
+    }
   }
 
   private dispatchMouseEventForNode(
     node: BaseDom<A, P, E>,
     event: BaseMouseEvent<A, P, E>,
-  ) {
+    dispatchMap: Record<EventName, BaseDom<A, P, E>[]>) {
     if (!event.bubbles) {
       return
     }
@@ -938,7 +973,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
     if (node.attributes.hide) {
       return
     }
-    const { attributes, layoutNode } = node
+    const { layoutNode } = node
     if (node.layoutNode.hasPoint(event.x, event.y)) {
       if (typeof event.target === "undefined") {
         event.target = node
@@ -946,61 +981,54 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
 
       if (event.hover) {
         if (this.customIsWheelDown(event)) {
-          attributes.onWheelDown?.(event)
+          dispatchMap.onWheelDown.push(node)
           return
         }
         if (this.customIsWheelUp(event)) {
-          attributes.onWheelUp?.(event)
+          dispatchMap.onWheelUp.push(node)
           return
         }
 
         if (this.customIsMousePress(event)) {
           if (layoutNode._mouseDown) {
-            attributes.onMousePress?.(event)
+            dispatchMap.onMousePress.push(node)
           } else if (!layoutNode._mouseIn) {
-            attributes.onMouseEnter?.(event)
+            dispatchMap.onMouseEnter.push(node)
+
             layoutNode._mouseIn = true
           } else {
-            attributes.onMouseMove?.(event)
+            dispatchMap.onMouseMove.push(node)
           }
         } else if (!layoutNode._mouseDown && this.customIsMouseDown(event)) {
           if (!layoutNode._mouseDown) {
-            attributes.onMouseDown?.(event)
-            attributes.onClick?.(event)
+            dispatchMap.onMouseDown.push(node)
+            dispatchMap.onClick.push(node)
             layoutNode._mouseDown = true
             layoutNode._mouseUp = false
             if (!layoutNode._focus) {
               layoutNode._focus = true
-              attributes.onFocus?.(event)
+              dispatchMap.onFocus.push(node)
             }
           }
         } else if (this.customIsMouseUp(event)) {
           if (!layoutNode._mouseUp) {
-            attributes.onMouseUp?.(event)
+            dispatchMap.onMouseUp.push(node)
             layoutNode._mouseDown = false
             layoutNode._mouseUp = true
             if (!layoutNode._focus) {
-              attributes.onFocus?.(event)
+              dispatchMap.onFocus.push(node)
               layoutNode._focus = true
             }
           }
         }
       } else if (layoutNode._mouseIn) {
-        attributes.onMouseLeave?.(event)
+        dispatchMap.onMouseLeave.push(node)
         layoutNode._mouseIn = false
       }
     } else {
-      // const mouseEvent = this.customCreateMouseEvent(
-      //   node,
-      //   event.x,
-      //   event.y,
-      //   event.hover,
-      //   event.event,
-      // )
-
       // mouseEvent.target = undefined
       if (layoutNode._mouseIn) {
-        attributes.onMouseLeave?.(event)
+        dispatchMap.onMouseLeave.push(node)
         layoutNode._mouseIn = false
         // layoutNode._mouseUp = false
       }
@@ -1009,7 +1037,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
         layoutNode._focus &&
         (this.customIsMouseDown(event) || this.customIsMouseUp(event))
       ) {
-        attributes.onBlur?.(event)
+        dispatchMap.onBlur.push(node)
         layoutNode._focus = false
         // layoutNode._mouseIn = false
         // layoutNode._mouseUp = false
