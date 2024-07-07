@@ -12,6 +12,18 @@ export function drawNode(canvas: Canvas, node: TDom, x: number, y: number) {
       continue
     }
 
+    if (c === "\n") {
+      py++
+      px = 0
+      continue
+    }
+
+    // TODO: support \t
+    if (c === "\t") {
+      px += 2
+      continue
+    }
+
     const p = new Pixel(
       c,
       px,

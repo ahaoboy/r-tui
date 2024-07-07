@@ -3,7 +3,7 @@ import { DefaultEventPriority } from "react-reconciler/constants"
 import { appendChildNode, insertBeforeNode, removeChildNode } from "@r-tui/flex"
 import { applyProps } from "@r-tui/flex"
 const NO_CONTEXT = {}
-import { TDom, TFlex, createTDom } from "./flex"
+import { RenderConfig, TDom, TFlex, createTDom } from "./flex"
 
 export function createCustomReconciler(flex: TFlex) {
   return createReconciler({
@@ -135,15 +135,14 @@ export function createCustomReconciler(flex: TFlex) {
   })
 }
 
-export type RenderConfig = {
-  enableMouseMoveEvent: boolean
-  fps: number
-  customRender: (node: TDom) => void
-}
-
 export const defaultFPS = 30
 
-export function render(reactNode: React.ReactNode, flex = new TFlex()) {
+export function render(
+  reactNode: React.ReactNode,
+  config: Partial<RenderConfig> = {},
+) {
+  const flex = new TFlex(config)
+
   const reconciler = createCustomReconciler(flex)
   const container = reconciler.createContainer(
     flex.rootNode,

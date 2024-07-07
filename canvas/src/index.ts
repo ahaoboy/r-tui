@@ -64,7 +64,7 @@ export class Canvas {
     return p
   }
 
-  toAnsi(): string {
+  toAnsi(trim = false): string {
     const list: string[] = []
     const h = this.shape.height
     const w = this.shape.width
@@ -81,7 +81,11 @@ export class Canvas {
       // list.push('\x1B[0G')
       // list.push('\n')
     }
-    return list.join("")
+    let s = list.join("")
+    if (trim) {
+      s = s.trim()
+    }
+    return s
   }
 
   toHtml(theme: Theme = "vscode") {}

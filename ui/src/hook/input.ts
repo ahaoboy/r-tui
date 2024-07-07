@@ -47,3 +47,13 @@ export function useInput() {
   }, [])
   return key
 }
+
+export function useReadLine() {
+  const [data, setData] = useState<string | undefined>()
+  useEffect(() => {
+    process.stdin.addListener("data", (s) => {
+      setData(s.toString().trim())
+    })
+  }, [])
+  return data
+}

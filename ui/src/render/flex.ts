@@ -10,6 +10,7 @@ import { Color, getStringShape, type Shape } from "@r-tui/share"
 import { drawNode } from "./canvas"
 import throttle from "lodash-es/throttle"
 import { getTerminalShape } from "@r-tui/terminal"
+import { defaultFPS } from "./reconciler"
 
 export const BoxName = "@r-tui/box"
 export const RootName = "@r-tui/root"
@@ -23,8 +24,13 @@ export interface TDomProps {
   nodeName: string
 }
 
-const DefaultFps = 30
 export interface TDom extends BaseDom<TDomAttrs, TDomProps, {}> {}
+
+export type RenderConfig = {
+  enableMouseMoveEvent: boolean
+  fps: number
+  trim: boolean
+}
 
 export function createTDom(nodeName = BoxName): TDom {
   return {
@@ -36,6 +42,14 @@ export function createTDom(nodeName = BoxName): TDom {
   }
 }
 export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
+  fps = 0
+  trim = false
+  constructor(config: Partial<RenderConfig> = {}) {
+    super()
+    const { fps = defaultFPS, trim = false } = config
+    this.fps = fps
+    this.trim = trim
+  }
   customCreateMouseEvent(
     node: BaseDom<TDomAttrs, TDomProps, {}> | undefined,
     x: number,
@@ -66,10 +80,10 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
       console.clear()
       this.canvas.clear()
       this.rerender()
-      const s = this.canvas.toAnsi()
+      const s = this.canvas.toAnsi(this.trim)
       process.stdout.write(s)
     },
-    1000 / DefaultFps,
+    1000 / defaultFPS,
     {
       trailing: true,
       leading: true,
@@ -84,7 +98,7 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   customCreateRootNode(): TDom {
     return createTDom(RootName)
   }
-  customRenderNode(node: TDom, currentRenderCount: number, deep: number): void {
+  customRenderNode(node: TDom): void {
     const {
       props: { nodeName } = {},
     } = node
