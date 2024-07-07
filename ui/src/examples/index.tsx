@@ -15,6 +15,6 @@ export const Example = {
 }
 
 // import React from "react"
-// import Example from "./snake"
+// import App from "./fill"
 // import { render } from "../render"
-// render(<Example />)
+// render(<App />)
