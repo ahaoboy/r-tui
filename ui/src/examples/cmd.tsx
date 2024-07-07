@@ -1,17 +1,24 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { Box } from "../"
 import { useReadLine } from "../hook/input"
-import cp from "node:child_process"
+import { spawn } from "node:child_process"
 
 export default function App() {
   const data = useReadLine()
-  const output = useMemo(() => {
-    if (!data?.length) {
-      return ""
+  const [output, setOutput] = useState("")
+
+  useEffect(() => {
+    if (!data) {
+      return
     }
-    const output = cp.execSync(data).toString().trim()
-    return output
+    const list = data.split(" ")
+    const [exe, ...args] = list
+    const cmd = spawn(exe, args)
+    cmd.stdout.on("data", (s) => {
+      setOutput(s.toString().trim())
+    })
   }, [data])
+
   return (
     <Box
       id="cmd-main"

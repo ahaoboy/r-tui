@@ -24,6 +24,9 @@ export default function App() {
 
 ## example
 
+### [cmd](./ui/src/examples/cmd.tsx)
+![cmd](./assets/cmd.gif)
+
 ### [snake](./ui/src/examples/snake.tsx)
 ![snake](./assets/snake.gif)
 
