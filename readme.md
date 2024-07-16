@@ -22,6 +22,25 @@ export default function App() {
 ```
 ![flex](./assets/flex.svg)
 
+
+## api polyfill
+For more convenient use, please ensure that the running environment contains at least the following APIs
+
+### input
+```
+process.stdin.setRawMode
+process.stdin.read
+process.stdin.addListener("readable", cb)
+process.stdin.addListener("data", cb)
+process.stdout.rows
+process.stdout.columns
+```
+
+### output
+```
+process.stdout.write
+```
+
 ## example
 
 ### [cmd](./ui/src/examples/cmd.tsx)

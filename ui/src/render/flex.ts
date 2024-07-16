@@ -1,11 +1,5 @@
 import { Canvas } from "@r-tui/canvas"
-import {
-  type BaseDom,
-  Flex,
-  type BaseDomProps,
-  LayoutNode,
-  BaseMouseEvent,
-} from "@r-tui/flex"
+import { type BaseDom, Flex, LayoutNode, BaseMouseEvent } from "@r-tui/flex"
 import { Color, getStringShape, type Shape } from "@r-tui/share"
 import { drawNode } from "./canvas"
 import throttle from "lodash-es/throttle"
@@ -30,6 +24,8 @@ export type RenderConfig = {
   enableMouseMoveEvent: boolean
   fps: number
   trim: boolean
+  shape: Shape
+  write: (s: string) => void
 }
 
 export function createTDom(nodeName = BoxName): TDom {
@@ -44,11 +40,22 @@ export function createTDom(nodeName = BoxName): TDom {
 export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   fps = 0
   trim = false
+  canvas: Canvas
+  write: (s: string) => void
+  shape: Shape
   constructor(config: Partial<RenderConfig> = {}) {
     super()
-    const { fps = defaultFPS, trim = false } = config
+    const {
+      fps = defaultFPS,
+      trim = false,
+      shape = getTerminalShape(),
+      write = process.stdout.write,
+    } = config
     this.fps = fps
     this.trim = trim
+    this.shape = shape
+    this.canvas = new Canvas(shape)
+    this.write = write
   }
   customCreateMouseEvent(
     node: BaseDom<TDomAttrs, TDomProps, {}> | undefined,
@@ -74,14 +81,13 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   customIsMouseUp(e: BaseMouseEvent<TDomAttrs, TDomProps, {}>): boolean {
     throw new Error("Method not implemented.")
   }
-  canvas = new Canvas(getTerminalShape())
   renderToConsole: () => void = throttle(
     () => {
       console.clear()
       this.canvas.clear()
       this.rerender()
       const s = this.canvas.toAnsi(this.trim)
-      process.stdout.write(s)
+      this.write(s)
     },
     1000 / defaultFPS,
     {
