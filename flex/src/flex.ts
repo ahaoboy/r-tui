@@ -82,7 +82,7 @@ function setAxisSize<D extends BaseDom>(n: D, x: number, isX: boolean) {
 
 export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
   rootNode: BaseDom<A, P, E>
-  abstract customCreateNode(): BaseDom<A, P, E>
+  // abstract customCreateNode(): BaseDom<A, P, E>
   abstract customIsRootNode(node: BaseDom<A, P, E>): boolean
   abstract customCreateRootNode(): BaseDom<A, P, E>
   abstract customRenderNode(
@@ -958,7 +958,17 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
         (a, b) => (b.attributes.zIndex || 0) - (a.attributes.zIndex || 0),
       )
       for (const n of sorted) {
+        // if (!event.bubbles && name!=='onMouseLeave') {
+        console.log(
+          "name:",
+          name,
+          event.x,
+          event.y,
+          n.layoutNode.hasPoint(event.x, event.y),
+        )
         if (!event.bubbles) {
+          // if (!event.bubbles && n.layoutNode.hasPoint(event.x, event.y)) {
+          console.log("name continue:", name)
           continue
         }
         n.attributes[name]?.(event)

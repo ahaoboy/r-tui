@@ -98,9 +98,9 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   customIsRootNode(node: TDom): boolean {
     return node.props?.nodeName === RootName
   }
-  customCreateNode(): TDom {
-    return createTDom()
-  }
+  // customCreateNode(): TDom {
+  //   return createTDom()
+  // }
   customCreateRootNode(): TDom {
     return createTDom(RootName)
   }
