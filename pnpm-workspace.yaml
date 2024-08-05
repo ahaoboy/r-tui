@@ -1,5 +1,5 @@
 packages:
-  - 'ui'
+  - 'react'
   - 'canvas'
   - 'share'
   - 'terminal'

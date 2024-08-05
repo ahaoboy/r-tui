@@ -2,7 +2,11 @@
   "name": "r-tui",
   "version": "0.0.0",
   "private": true,
-  "files": ["dist", "readme.md", "package.json"],
+  "files": [
+    "dist",
+    "readme.md",
+    "package.json"
+  ],
   "description": "react terminal UI",
   "scripts": {
     "case-police": "case-police \"**/*.ts\"  fix",
@@ -19,7 +23,12 @@
     "release": "pnpm publish -r --access public",
     "release-alpha": "pnpm publish -r --access public --tag alpha"
   },
-  "keywords": ["TS", "React", "r-tui", "terminal"],
+  "keywords": [
+    "TS",
+    "React",
+    "r-tui",
+    "terminal"
+  ],
   "author": "ahaoboy",
   "license": "MIT",
   "devDependencies": {
@@ -41,5 +50,6 @@
     "tsx": "^4.16.0",
     "typescript": "^5.5.2",
     "vitest": "^1.6.0"
-  }
+  },
+  "packageManager": "pnpm@8.15.8+sha256.691fe176eea9a8a80df20e4976f3dfb44a04841ceb885638fe2a26174f81e65e"
 }

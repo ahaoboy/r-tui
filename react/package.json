@@ -17,7 +17,7 @@
     }
   },
   "scripts": {
-    "bundle": "esbuild ./test/* --bundle --outdir=dist --platform=node --format=esm -platform=node",
+    "bundle": "esbuild ./src/examples/*.tsx --bundle --outdir=dist --platform=node --format=esm",
     "build": "tsc -p ./tsconfig.build.json",
     "dev": "tsc -p ./tsconfig.build.json -w",
     "test": "vitest"
