@@ -24,7 +24,8 @@
       "@r-tui/core": ["./core/src"],
       "@r-tui/terminal": ["./terminal/src"],
       "@r-tui/canvas": ["./canvas/src"],
-      "@r-tui/ui": ["./ui/src"],
+      "@r-tui/react": ["./react/src"],
+      "@r-tui/solid": ["./solid/src"],
       "@r-tui/flex": ["./flex/src"],
       "@r-tui/share": ["./share/src"]
     }
