@@ -1,6 +1,6 @@
 import React from "react"
 import { Box } from "../"
-import { useInput } from "../hook/input"
+import { useInput } from "../hook"
 
 export default function App() {
   const key = useInput()

@@ -1,8 +1,8 @@
 import { choice, Color } from "@r-tui/share"
-import React, { useEffect, useRef, useState } from "react"
-import { Box } from "../ui"
+import { Box } from "@r-tui/solid"
 import { onInput } from "../hook"
 import { getTerminalShape } from "@r-tui/terminal"
+import { createSignal } from "solid-js"
 
 const initSnakeLen = 10
 const speed = 100
@@ -92,9 +92,8 @@ const snake = new Snake()
 
 export default function SnakeGame() {
   const { width: w, height: h } = getTerminalShape()
-  const [body, setBody] = useState(snake.body)
-
-  const [food, setFood] = useState({ x: -1, y: -1 })
+  const [body, setBody] = createSignal(snake.body)
+  const [food, setFood] = createSignal({ x: -1, y: -1 })
   const cellSize = 1
   const yCount = (h / cellSize) | 0
   const xCount = (w / cellSize) | 0
@@ -104,7 +103,7 @@ export default function SnakeGame() {
     const list: { x: number; y: number }[] = []
     for (let x = 0; x < xCount; x++) {
       for (let y = 0; y < yCount; y++) {
-        if (body.findIndex((i) => i.x === x && i.y === y) >= 0) {
+        if (body().findIndex((i) => i.x === x && i.y === y) >= 0) {
           continue
         }
         list.push({ x, y })
@@ -116,7 +115,7 @@ export default function SnakeGame() {
   const update = () => {
     const safe = snake.move()
 
-    if (snake.body[0].x === food.x && snake.body[0].y === food.y) {
+    if (snake.body[0].x === food().x && snake.body[0].y === food().y) {
       snake.grow++
       createFood()
     }
@@ -128,38 +127,28 @@ export default function SnakeGame() {
     }
   }
 
-  const updateRef = useRef(update)
-  updateRef.current = update
+  snake.body = []
+  snake.direction = 3
+  snake.grow = 0
+  snake.addHead(initSnakeLen - 1, 0)
 
-  useEffect(() => {
-    snake.body = []
-    snake.direction = 3
-    snake.grow = 0
-    snake.addHead(initSnakeLen - 1, 0)
+  for (let i = initSnakeLen - 2; i >= 0; i--) {
+    snake.addBody(i, 0)
+  }
 
-    for (let i = initSnakeLen - 2; i >= 0; i--) {
-      snake.addBody(i, 0)
+  onInput((key) => {
+    if (!key) return
+
+    const d = keyMap.find((i) => i[0] === key)
+
+    if (d) {
+      snake.direction = d[1]
     }
+  })
 
-    onInput((key) => {
-      if (!key) return
-
-      const d = keyMap.find((i) => i[0] === key)
-
-      if (d) {
-        snake.direction = d[1]
-      }
-    })
-
-    const handle = setInterval(() => {
-      updateRef.current()
-    }, speed)
-
-    createFood()
-    setBody(snake.body)
-
-    return () => clearInterval(handle)
-  }, [])
+  const handle = setInterval(update, speed)
+  createFood()
+  setBody(snake.body)
 
   return (
     <Box
@@ -175,12 +164,12 @@ export default function SnakeGame() {
           const x = k % xCount
           const y = (k / xCount) | 0
           let color: Color = "default"
-          if (body.length) {
-            if (x === body[0].x && y === body[0].y) {
+          if (body().length) {
+            if (x === body()[0].x && y === body()[0].y) {
               color = snakeHeadColor
-            } else if (body.find((i) => i.x === x && i.y === y)) {
+            } else if (body().find((i) => i.x === x && i.y === y)) {
               color = snakeColor
-            } else if (x === food.x && y === food.y) {
+            } else if (x === food().x && y === food().y) {
               color = foodColor
             }
           }
@@ -190,6 +179,7 @@ export default function SnakeGame() {
               position="absolute"
               x={x * cellSize + offsetX}
               y={y * cellSize}
+              // @ts-ignore
               key={k}
               color={color}
               zIndex={10}

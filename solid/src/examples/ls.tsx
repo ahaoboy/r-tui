@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react"
-import { Box } from "../"
+import { Box } from "@r-tui/solid"
 import child_process from "node:child_process"
 import { Down, Enter, Tab, Up, offInput, onInput } from "../hook"
+import { createSignal } from "solid-js"
 
 type Info = {
   name: string
@@ -20,14 +20,13 @@ function getDirInfo(path = "."): Info[] {
 }
 
 export default function App() {
-  const [root, setRoot] = useState(["."])
-  const currentPath = root.join("/")
-  const [select, setSelect] = useState(0)
-  const [dirInfo, setDirInfo] = useState<Info[]>([])
-  const [fileInfo, setFileInfo] = useState<Info[]>([])
-  const handleRef = useRef<(s: string) => void>()
+  const [root, setRoot] = createSignal(["."])
+  const currentPath = root().join("/")
+  const [select, setSelect] = createSignal(0)
+  const [dirInfo, setDirInfo] = createSignal<Info[]>([])
+  const [fileInfo, setFileInfo] = createSignal<Info[]>([])
   const line = "-".repeat(
-    [...dirInfo, ...fileInfo]
+    [...dirInfo(), ...fileInfo()]
       .map((i) => i.name.length)
       .reduce((a, b) => Math.max(a, b), 0),
   )
@@ -38,60 +37,59 @@ export default function App() {
     setDirInfo([{ name: "..", dir: true }, ...info.filter((i) => i.dir)])
     setFileInfo(info.filter((i) => !i.dir))
   }
-  handleRef.current = (key: string) => {
-    if (!dirInfo.length) {
+  const update = (key: string) => {
+    if (!dirInfo().length) {
       return
     }
     switch (key) {
       case "w":
       case Up: {
-        setSelect((select - 1 + dirInfo.length) % dirInfo.length)
+        setSelect((select() - 1 + dirInfo().length) % dirInfo().length)
         break
       }
       case "s":
       case Tab:
       case Down: {
-        setSelect((select + 1) % dirInfo.length)
+        setSelect((select() + 1) % dirInfo().length)
         break
       }
       case " ":
       case Enter: {
-        const name = dirInfo[select].name
+        const name = dirInfo()[select()].name
         if (name === "..") {
           if (root.length > 1) {
-            root.pop()
+            root().pop()
           }
         } else {
-          root.push(dirInfo[select].name)
+          root().push(dirInfo()[select()].name)
         }
-        init([...root])
+        init([...root()])
         setSelect(0)
         break
       }
     }
   }
-  useEffect(() => {
-    init(root)
-
-    const h = (s: string) => handleRef.current?.(s)
-    onInput(h)
-
-    return () => offInput(h)
-  }, [])
+  init(root())
+  onInput(update)
 
   return (
     <Box width={"100%"} height={"100%"} display="flex" flexDirection="row">
       <Box color="yellow" text={currentPath} />
       <Box color="yellow" text={line} />
-      {dirInfo.map((i, k) => (
+      {dirInfo().map((i, k) => (
         <Box
+          // @ts-ignore
           key={i.name}
           text={i.name}
-          color={k === select ? "red" : "green"}
+          color={k === select() ? "red" : "green"}
         />
       ))}
-      {fileInfo.map((i) => (
-        <Box key={i.name} text={i.name} />
+      {fileInfo().map((i) => (
+        <Box
+          // @ts-ignore
+          key={i.name}
+          text={i.name}
+        />
       ))}
     </Box>
   )
