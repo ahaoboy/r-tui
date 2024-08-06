@@ -1,4 +1,3 @@
-import React from "react"
 import { Box } from "@r-tui/solid"
 import { useReadLine } from "../hook"
 

@@ -31,7 +31,7 @@ export const Example = {
 }
 
 import { render, Box, TDom, createTDom, effect } from "@r-tui/solid"
-render(() => <Ls />, {
+render(() => <MoveBox />, {
   write: (s) => {
     console.log(s.trimEnd())
   },
