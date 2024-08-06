@@ -64,8 +64,16 @@ process.stdout.write
 
 ### txiki.js
 
-[r-tui-txiki](https://github.com/ahaoboy/r-tui-txiki)
+[r-tui-txiki-react](https://github.com/ahaoboy/r-tui-txiki)
+[r-tui-txiki-solidjs](https://github.com/ahaoboy/r-tui-txiki-solidjs)
 
+```
+solidjs
+-rw-r--r-- 1 root root  33K Aug  6 23:01 cmd.js
+
+react
+-rw-r--r-- 1 root root 124K Aug  6 22:51 cmd.js
+```
 ## todo
 
 - [ ] support yoga-wasm-web api
