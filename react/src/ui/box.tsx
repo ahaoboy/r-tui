@@ -1,7 +1,6 @@
 import React from "react"
 import { forwardRef } from "react"
-import type { TDom, TDomProps } from "../render/flex"
-import type { BaseDomProps } from "@r-tui/flex"
+import type { TDom } from "../render/flex"
 
 export const Box = forwardRef<
   TDom,

@@ -172,29 +172,27 @@ export function appendChildNode<D extends BaseDom>(
 }
 
 export function insertBeforeNode<D extends BaseDom>(
+  parent: D,
   node: D,
-  newChildNode: D,
-  beforeChildNode: D,
-): void {
-  if (newChildNode.parentNode) {
-    removeChildNode(newChildNode.parentNode, newChildNode)
+  anchor: D,
+) {
+  if (node.parentNode) {
+    removeChildNode(node.parentNode, node)
   }
 
-  newChildNode.parentNode = node
+  node.parentNode = parent
 
-  const index = node.childNodes.indexOf(beforeChildNode)
+  const index = parent.childNodes.indexOf(anchor)
   if (index >= 0) {
-    node.childNodes.splice(index, 0, newChildNode)
+    parent.childNodes.splice(index, 0, node)
     return
   }
 
-  node.childNodes.push(newChildNode)
+  parent.childNodes.push(node)
+  return parent.childNodes
 }
 
-export function removeChildNode<D extends BaseDom>(
-  node: D,
-  removeNode: D,
-): void {
+export function removeChildNode<D extends BaseDom>(node: D, removeNode: D) {
   removeNode.parentNode = undefined
 
   const index = node.childNodes.indexOf(removeNode)
@@ -210,4 +208,12 @@ export function setAttribute<D extends BaseDom>(
 ): void {
   // @ts-ignore
   node.attributes[key] = value
+}
+
+export function getNextSibling<D extends BaseDom>(node: D) {
+  if (!node || !node.parentNode) return
+  const childNodes = node.parentNode.childNodes
+  const i = childNodes.indexOf(node)
+  if (i < 0 || i >= childNodes.length) return
+  return childNodes[i + 1]
 }

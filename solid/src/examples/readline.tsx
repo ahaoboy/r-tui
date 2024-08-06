@@ -1,5 +1,4 @@
-import React from "react"
-import { Box } from "../"
+import { Box } from "@r-tui/solid"
 import { useReadLine } from "../hook"
 
 export default function App() {
@@ -15,7 +14,7 @@ export default function App() {
     >
       <Box color="red" text={"key"} />
       <Box color="green" text={":"} />
-      <Box color="blue" text={`${data}`} />
+      <Box color="blue" text={`${data()}`} />
     </Box>
   )
 }

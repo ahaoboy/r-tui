@@ -1,9 +1,8 @@
-import React from "react"
-import { Box } from "../"
-import { useReadLine } from "../hook"
+import { Box } from "@r-tui/solid"
+import { useInput } from "../hook"
 
 export default function App() {
-  const data = useReadLine()
+  const key = useInput()
   return (
     <Box
       width={"100%"}
@@ -15,7 +14,7 @@ export default function App() {
     >
       <Box color="red" text={"key"} />
       <Box color="green" text={":"} />
-      <Box color="blue" text={`${data}`} />
+      <Box color="blue" text={`${key()}`} />
     </Box>
   )
 }
