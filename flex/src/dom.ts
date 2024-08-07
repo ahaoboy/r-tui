@@ -204,10 +204,19 @@ export function removeChildNode<D extends BaseDom>(node: D, removeNode: D) {
 export function setAttribute<D extends BaseDom>(
   node: D,
   key: string,
-  value: DOMNodeAttribute,
+  value: any,
 ): void {
   // @ts-ignore
   node.attributes[key] = value
+}
+
+export function setProp<D extends BaseDom>(
+  node: D,
+  key: string,
+  value: any,
+): void {
+  // @ts-ignore
+  node.props[key] = value
 }
 
 export function getNextSibling<D extends BaseDom>(node: D) {
