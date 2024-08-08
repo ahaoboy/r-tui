@@ -1,9 +1,8 @@
-import type { TDom } from "../render/flex"
-import { type Component, type JSX, JSXElement } from "solid-js"
-
+import type { TDom } from "@r-tui/rflex"
 export const Box = (
   props: Partial<TDom["attributes"]> & {
     children?: any
+    key?: number | string
   },
 ) => {
   // @ts-ignore

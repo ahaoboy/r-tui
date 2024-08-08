@@ -179,7 +179,6 @@ export default function SnakeGame() {
               position="absolute"
               x={x * cellSize + offsetX}
               y={y * cellSize}
-              // @ts-ignore
               key={k}
               color={color}
               zIndex={10}

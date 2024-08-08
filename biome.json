@@ -47,7 +47,8 @@
         "noArrayIndexKey": "off",
         "noFallthroughSwitchClause": "off",
         "noUnsafeDeclarationMerging": "off",
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "noAssignInExpressions": "off"
       },
       "complexity": {
         "noBannedTypes": "off"

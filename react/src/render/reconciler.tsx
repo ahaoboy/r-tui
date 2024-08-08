@@ -1,9 +1,15 @@
 import createReconciler from "react-reconciler"
 import { DefaultEventPriority } from "react-reconciler/constants"
-import { appendChildNode, insertBeforeNode, removeChildNode } from "@r-tui/flex"
+import {
+  appendChildNode,
+  insertBeforeNode,
+  removeChildNode,
+  setAttribute,
+  setLayoutNode,
+} from "@r-tui/flex"
 import { applyProps } from "@r-tui/flex"
 const NO_CONTEXT = {}
-import { RenderConfig, TDom, TFlex, createTDom } from "./flex"
+import { RenderConfig, RootName, TDom, TFlex, createTDom } from "@r-tui/rflex"
 
 export function createCustomReconciler(flex: TFlex) {
   return createReconciler({
@@ -158,30 +164,31 @@ export function render(
   )
   let lastW = 0
   let lastH = 0
-  const RootId = `__flex_root_${Math.random().toString(16)}`
   function renderRootNode() {
     const { width, height } = flex.canvas.shape
     lastW = width
     lastH = height
-    const { attributes, layoutNode } = flex.rootNode
-    attributes.id = RootId
-    attributes.width = width
-    attributes.height = height
-    attributes.position = "relative"
-    attributes.color = undefined
-    attributes.backgroundColor = undefined
-    attributes.display = "flex"
-    attributes.padding = 0
-    attributes.borderSize = 0
-    attributes.x = 0
-    attributes.y = 0
-    attributes.zIndex = 0
-    layoutNode.x = 0
-    layoutNode.y = 0
-    layoutNode.width = width
-    layoutNode.height = height
-    layoutNode.padding = 0
-    layoutNode.border = 0
+
+    setAttribute(flex.rootNode, "id", RootName)
+    setAttribute(flex.rootNode, "width", width)
+    setAttribute(flex.rootNode, "height", height)
+    setAttribute(flex.rootNode, "position", "relative")
+    setAttribute(flex.rootNode, "color", undefined)
+    setAttribute(flex.rootNode, "backgroundColor", undefined)
+    setAttribute(flex.rootNode, "display", "flex")
+    setAttribute(flex.rootNode, "padding", 0)
+    setAttribute(flex.rootNode, "borderSize", 0)
+    setAttribute(flex.rootNode, "x", 0)
+    setAttribute(flex.rootNode, "y", 0)
+    setAttribute(flex.rootNode, "zIndex", 0)
+
+    setLayoutNode(flex.rootNode, "x", 0)
+    setLayoutNode(flex.rootNode, "y", 0)
+    setLayoutNode(flex.rootNode, "width", width)
+    setLayoutNode(flex.rootNode, "height", height)
+    setLayoutNode(flex.rootNode, "padding", 0)
+    setLayoutNode(flex.rootNode, "border", 0)
+
     reconciler.updateContainer(reactNode, container, null, null)
 
     flex.renderToConsole()

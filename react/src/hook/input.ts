@@ -17,7 +17,6 @@ function initMode() {
   process.stdin.setRawMode(true)
   function handleReadable() {
     let s: string | null
-    // biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
     while ((s = process.stdin.read()) !== null) {
       const str = s.toString()
       if (str === CtrlC) {

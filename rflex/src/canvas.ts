@@ -1,5 +1,5 @@
 import { type Canvas, Pixel } from "@r-tui/canvas"
-import type { TDom } from "../render/flex"
+import type { TDom } from "./flex"
 
 export function drawNode(canvas: Canvas, node: TDom, x: number, y: number) {
   let px = x

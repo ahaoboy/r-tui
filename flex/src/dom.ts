@@ -72,8 +72,6 @@ export class LayoutNode extends Rect {
     public border = 0,
     public hide = false,
     public textRect = new Rect(0, 0, 0, 0),
-    public computedSizeCount = 0,
-    public computedLayoutCount = 0,
     public _hideCache = false,
     public _renderCache = false,
     public _mouseDown = false,
@@ -154,6 +152,7 @@ export interface BaseDom<
   childNodes: BaseDom<A, P, E>[]
   parentNode: BaseDom<A, P, E> | undefined
   layoutNode: LayoutNode
+  dirty: boolean
   props: P
 }
 
@@ -175,7 +174,7 @@ export function insertBeforeNode<D extends BaseDom>(
   parent: D,
   node: D,
   anchor: D,
-) {
+): void {
   if (node.parentNode) {
     removeChildNode(node.parentNode, node)
   }
@@ -189,10 +188,12 @@ export function insertBeforeNode<D extends BaseDom>(
   }
 
   parent.childNodes.push(node)
-  return parent.childNodes
 }
 
-export function removeChildNode<D extends BaseDom>(node: D, removeNode: D) {
+export function removeChildNode<D extends BaseDom>(
+  node: D,
+  removeNode: D,
+): void {
   removeNode.parentNode = undefined
 
   const index = node.childNodes.indexOf(removeNode)
@@ -210,6 +211,22 @@ export function setAttribute<D extends BaseDom>(
   node.attributes[key] = value
 }
 
+export function setLayoutNode<
+  D extends BaseDom,
+  K extends keyof D["layoutNode"],
+>(node: D, key: K, value: D["layoutNode"][K]): void {
+  // @ts-ignore
+  node.layoutNode[key] = value
+}
+
+export function getAttribute<D extends BaseDom, R = any>(
+  node: D,
+  key: string,
+): R {
+  // @ts-ignore
+  return node.attributes[key] as any
+}
+
 export function setProp<D extends BaseDom>(
   node: D,
   key: string,
@@ -219,10 +236,31 @@ export function setProp<D extends BaseDom>(
   node.props[key] = value
 }
 
-export function getNextSibling<D extends BaseDom>(node: D) {
+export function getProp<D extends BaseDom, R = any>(node: D, key: string): R {
+  // @ts-ignore
+  return node.props[key] as any
+}
+
+export function getNextSibling<D extends BaseDom>(node: D): D | undefined {
   if (!node || !node.parentNode) return
   const childNodes = node.parentNode.childNodes
   const i = childNodes.indexOf(node)
   if (i < 0 || i >= childNodes.length) return
-  return childNodes[i + 1]
+  return childNodes[i + 1] as D
+}
+
+export function getFirstChild<D extends BaseDom>(node: D): D | undefined {
+  return node.childNodes[0] as D
+}
+
+export function getParentNode<D extends BaseDom>(node: D): D | undefined {
+  return node.parentNode as D
+}
+
+export function markDirty<D extends BaseDom>(node: D): void {
+  node.dirty = true
+}
+
+export function markClean<D extends BaseDom>(node: D): void {
+  node.dirty = false
 }

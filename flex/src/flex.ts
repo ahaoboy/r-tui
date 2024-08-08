@@ -26,26 +26,23 @@ export function lenToNumber<D extends BaseDom>(
   isX: boolean,
   defaultValue = 0,
 ): number {
-  let v = defaultValue
   switch (typeof len) {
     case "number": {
-      v = len
-      break
+      return len
     }
     case "undefined": {
       break
     }
     case "string": {
-      if (isPercentage(len)) {
-        return getAxisSize(node.parentNode!, isX) * parsePercentage(len)
-      }
-      return Number.parseFloat(len)
+      return isPercentage(len)
+        ? getAxisSize(node.parentNode!, isX) * parsePercentage(len)
+        : +len
     }
     default: {
       throw new Error(`len type error: ${len}`)
     }
   }
-  return v
+  return defaultValue
 }
 
 function skipFlexLayout<D extends BaseDom>(node: D): boolean {
@@ -88,19 +85,10 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
   // abstract customCreateNode(): BaseDom<A, P, E>
   abstract customIsRootNode(node: BaseDom<A, P, E>): boolean
   abstract customCreateRootNode(): BaseDom<A, P, E>
-  abstract customRenderNode(
-    node: BaseDom<A, P, E>,
-    currentRenderCount: number,
-    deep: number,
-  ): void
+  abstract customRenderRoot(node: BaseDom<A, P, E>): void
 
   abstract customMeasureNode(node: BaseDom<A, P, E>): Shape
-  abstract customComputeZIndex(
-    node: BaseDom<A, P, E>,
-    zIndex: number,
-    currentRenderCount: number,
-    deep: number,
-  ): void
+  abstract customComputeZIndex(node: BaseDom<A, P, E>, zIndex: number): void
 
   // event
   abstract customCreateMouseEvent(
@@ -120,11 +108,18 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
     this.rootNode = this.customCreateRootNode()
   }
 
-  private renderCount = 0
-  private maxRenderCount = 1 << 10
-  rerender() {
-    this.renderCount = (this.renderCount + 1) % this.maxRenderCount
-    this.renderNode(this.rootNode, this.renderCount, 0)
+  renderRoot() {
+    // const t1 = +Date.now()
+    // The root node must have a certain size
+    for (const c of this.rootNode.childNodes) {
+      this.computeNodeSize(c)
+    }
+    // const t2 = +Date.now()
+    this.computeNodeLayout(this.rootNode)
+    // const t3 = +Date.now()
+    this.customRenderRoot(this.rootNode)
+    // const t4 = +Date.now()
+    // console.log('renderRoot: ', t2 - t1, t3 - t2, t4 - t3)
   }
   private computedNodeTLBR(node: BaseDom<A, P, E>) {
     const { attributes, layoutNode } = node
@@ -264,19 +259,9 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
     return deep
   }
 
-  private computeNodeSize(
-    node: BaseDom<A, P, E>,
-    currentRenderCount: number,
-    deep: number,
-  ) {
+  private computeNodeSize(node: BaseDom<A, P, E>) {
     const { attributes, layoutNode } = node
 
-    if (layoutNode.computedSizeCount === currentRenderCount) {
-      return
-    }
-    layoutNode.computedSizeCount = currentRenderCount
-
-    // console.log('computeNodeSize: ', node.attributes.id, currentRenderCount)
     const isX = attributes.flexDirection !== "row"
 
     // const st1 = +Date.now()
@@ -284,14 +269,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
     // const st2 = +Date.now()
     // console.log('computeZIndex', node.attributes.id, st2 - st1)
 
-    this.customComputeZIndex(node, zIndex, currentRenderCount, deep)
-
-    if (this.customIsRootNode(node)) {
-      for (const c of node.childNodes) {
-        this.computeNodeSize(c, currentRenderCount, deep + 1)
-      }
-      return
-    }
+    this.customComputeZIndex(node, zIndex)
 
     const paddingSize = lenToNumber(node, attributes.padding, isX)
     layoutNode.padding = paddingSize
@@ -323,7 +301,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
       // The size of the text node is not affected by its child nodes
       // making it convenient for calculating offsets in child nodes.
       for (const c of node.childNodes) {
-        this.computeNodeSize(c, currentRenderCount, deep + 1)
+        this.computeNodeSize(c)
       }
       return
     }
@@ -342,7 +320,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
       }
 
       for (const c of node.childNodes) {
-        this.computeNodeSize(c, currentRenderCount, deep + 1)
+        this.computeNodeSize(c)
 
         if (c.attributes.position === "absolute") {
           continue
@@ -391,7 +369,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
       let maxYAxisLen = 0
 
       for (const c of node.childNodes) {
-        this.computeNodeSize(c, currentRenderCount, deep + 1)
+        this.computeNodeSize(c)
         const childXSize = getAxisSize(c, isX)
         const childYSize = getAxisSize(c, !isX)
         maxXAxisLen = Math.max(maxXAxisLen, childXSize)
@@ -839,17 +817,8 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
 
     throw new Error(`not support flex align: ${justifyContent} ${alignItems}`)
   }
-  private computeNodeLayout(
-    node: BaseDom<A, P, E>,
-    currentRenderCount: number,
-  ) {
+  private computeNodeLayout(node: BaseDom<A, P, E>) {
     const { layoutNode, attributes } = node
-
-    if (layoutNode.computedLayoutCount === currentRenderCount) {
-      return
-    }
-    // console.log('computeNodeLayout: ', attributes.id, currentRenderCount)
-    layoutNode.computedLayoutCount = currentRenderCount
 
     if (hasTLBR(node)) {
       this.computedNodeTLBR(node)
@@ -880,34 +849,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
       }
     }
     for (const i of node.childNodes) {
-      this.computeNodeLayout(i, currentRenderCount)
-    }
-    // node.layoutNode._tlbr = false
-    // log("----computeLayout end: ", JSON.stringify(node.layoutNode))
-  }
-
-  private computedLayout(node: BaseDom<A, P, E>, currentRenderCount: number) {
-    // console.log("computedLayout", node.attributes.id)
-    if (node.layoutNode.computedLayoutCount === currentRenderCount) {
-      return
-    }
-    // const st1 = +Date.now()
-    this.computeNodeSize(node, currentRenderCount, 0)
-    // const st2 = +Date.now()
-    this.computeNodeLayout(node, currentRenderCount)
-    // const st3 = +Date.now()
-    // console.log("layout time: ", node.attributes.id, st2 - st1, st3 - st2)
-  }
-  renderNode(node: BaseDom<A, P, E>, currentRenderCount: number, deep: number) {
-    // console.log("renderNode", node.attributes.text)
-    this.computedLayout(this.rootNode, currentRenderCount)
-    // const st1 = +Date.now()
-    this.customRenderNode(node, currentRenderCount, deep)
-    // const st2 = +Date.now()
-    // console.log("renderNode: ",node.attributes.id, st2 - st1)
-
-    for (const i of node.childNodes) {
-      this.renderNode(i, currentRenderCount, deep + 1)
+      this.computeNodeLayout(i)
     }
   }
 

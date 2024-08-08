@@ -25,6 +25,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@r-tui/rflex": "workspace:*",
     "@r-tui/canvas": "workspace:*",
     "@r-tui/flex": "workspace:*",
     "@r-tui/share": "workspace:*",

@@ -28,7 +28,8 @@
       "@r-tui/react": ["./react/src"],
       "@r-tui/solid": ["./solid/src"],
       "@r-tui/flex": ["./flex/src"],
-      "@r-tui/share": ["./share/src"]
+      "@r-tui/share": ["./share/src"],
+      "@r-tui/rflex": ["./rflex/src"]
     }
   },
   "exclude": ["**/dist"]

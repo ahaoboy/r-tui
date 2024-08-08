@@ -6,6 +6,7 @@ import { default as Base } from "./base"
 import { default as Life } from "./life"
 import { default as Cmd } from "./cmd"
 import { default as Echo } from "./cmd"
+import { default as FillBox } from "./fill-box"
 
 export const Example = {
   Snake,
@@ -16,9 +17,9 @@ export const Example = {
   Life,
   Cmd,
   Echo,
+  FillBox,
 }
 
 // import React from "react"
-// import App from "./cmd"
 // import { render } from "../render"
-// render(<App />, { trim: true })
+// render(<FillBox />, { trim: true })

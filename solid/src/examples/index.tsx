@@ -30,9 +30,10 @@ export const Example = {
   Ls,
 }
 
-import { render, Box, TDom, createTDom, effect } from "@r-tui/solid"
-render(() => <MoveBox />, {
-  write: (s) => {
-    console.log(s.trimEnd())
-  },
-})
+// import { render, } from "@r-tui/solid"
+
+// render(() => <FillBox />, {
+//   // write: (s) => {
+//     // console.log(s.trimEnd())
+//   // },
+// })

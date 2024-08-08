@@ -4,10 +4,11 @@ import { Color, getStringShape, type Shape } from "@r-tui/share"
 import { drawNode } from "./canvas"
 import throttle from "lodash-es/throttle"
 import { getTerminalShape } from "@r-tui/terminal"
-import { defaultFPS } from "./reconciler"
 
+export const DefaultFPS = 30
 export const BoxName = "@r-tui/box"
 export const RootName = "@r-tui/root"
+export const TextName = "@r-tui/text"
 
 export interface TDomAttrs {
   color?: Color
@@ -35,9 +36,24 @@ export function createTDom(nodeName = BoxName): TDom {
     parentNode: undefined,
     childNodes: [],
     props: { nodeName },
+    dirty: false,
   }
 }
+
 export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
+  customRenderRoot(node: BaseDom<TDomAttrs, TDomProps, {}>): void {
+    for (const c of node.childNodes) {
+      this.customRenderRoot(c)
+    }
+    const {
+      props: { nodeName } = {},
+    } = node
+    if (nodeName === RootName) {
+      return
+    }
+    const { x, y } = node.layoutNode
+    drawNode(this.canvas, node, x | 0, y | 0)
+  }
   fps = 0
   trim = false
   canvas: Canvas
@@ -46,10 +62,13 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   constructor(config: Partial<RenderConfig> = {}) {
     super()
     const {
-      fps = defaultFPS,
+      fps = DefaultFPS,
       trim = false,
       shape = getTerminalShape(),
-      write = process.stdout.write,
+      write = (s) => {
+        console.clear()
+        process.stdout.write(s)
+      },
     } = config
     this.fps = fps
     this.trim = trim
@@ -83,13 +102,12 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   }
   renderToConsole: () => void = throttle(
     () => {
-      console.clear()
       this.canvas.clear()
-      this.rerender()
+      this.renderRoot()
       const s = this.canvas.toAnsi(this.trim)
       this.write(s)
     },
-    1000 / defaultFPS,
+    1000 / DefaultFPS,
     {
       trailing: true,
       leading: true,
@@ -98,30 +116,12 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   customIsRootNode(node: TDom): boolean {
     return node.props?.nodeName === RootName
   }
-  // customCreateNode(): TDom {
-  //   return createTDom()
-  // }
   customCreateRootNode(): TDom {
     return createTDom(RootName)
-  }
-  customRenderNode(node: TDom): void {
-    const {
-      props: { nodeName } = {},
-    } = node
-    if (nodeName === RootName) {
-      return
-    }
-    const { x, y } = node.layoutNode
-    drawNode(this.canvas, node, x | 0, y | 0)
   }
   customMeasureNode(node: TDom): Shape {
     const text = node.attributes.text || ""
     return getStringShape(text)
   }
-  customComputeZIndex(
-    node: TDom,
-    zIndex: number,
-    currentRenderCount: number,
-    deep: number,
-  ): void {}
+  customComputeZIndex(node: TDom, zIndex: number): void {}
 }

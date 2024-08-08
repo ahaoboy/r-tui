@@ -29,7 +29,6 @@ export default function FillBox() {
               position="absolute"
               x={x}
               y={y}
-              // @ts-ignore
               key={k}
               color={count() & 1 ? "green" : "blue"}
               zIndex={10}

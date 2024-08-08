@@ -22,7 +22,6 @@ export default function App() {
               position="absolute"
               x={x}
               y={y}
-              // @ts-ignore
               key={k}
               backgroundColor={"blue"}
               zIndex={10}

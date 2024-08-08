@@ -1,6 +1,6 @@
 {
-  "name": "@r-tui/react",
-  "version": "0.1.6",
+  "name": "@r-tui/rflex",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
@@ -17,7 +17,7 @@
     }
   },
   "scripts": {
-    "bundle": "esbuild ./src/examples/*.tsx --bundle --outdir=bundle --platform=node --format=iife",
+    "bundle": "esbuild ./src/examples/*.tsx --bundle --outdir=dist --platform=node --format=esm",
     "build": "tsc -p ./tsconfig.build.json",
     "dev": "tsc -p ./tsconfig.build.json -w",
     "test": "vitest"
