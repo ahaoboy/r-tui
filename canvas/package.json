@@ -1,7 +1,7 @@
 {
   "name": "@r-tui/canvas",
   "version": "0.1.8",
-  "description": "",
+  "description": "@r-tui/canvas",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
   "scripts": {

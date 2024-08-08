@@ -1,7 +1,7 @@
 {
   "name": "@r-tui/react",
   "version": "0.1.8",
-  "description": "",
+  "description": "@r-tui/react",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
   "exports": {

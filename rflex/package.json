@@ -1,7 +1,7 @@
 {
   "name": "@r-tui/rflex",
   "version": "0.1.2",
-  "description": "",
+  "description": "@r-tui/rflex",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
   "exports": {

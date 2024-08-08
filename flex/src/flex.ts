@@ -266,7 +266,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
   }
 
   private computeNodeSize(node: BaseDom<A, P, E>) {
-    // console.log('computeNodeSize',node.attributes.id, node.dirty)
+    // console.log('computeNodeSize',node.attributes.id, isDirty(node))
     if (!isDirty(node)) {
       for (const c of node.childNodes) {
         this.computeNodeSize(c)

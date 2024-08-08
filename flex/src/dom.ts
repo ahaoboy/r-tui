@@ -212,8 +212,8 @@ export function setAttribute<
 >(node: D, key: K, value: D["attributes"][K]): void {
   if (node.attributes[key] !== value) {
     markDirty(node)
+    node.attributes[key] = value
   }
-  node.attributes[key] = value
 }
 
 export function setLayoutNode<
@@ -235,7 +235,10 @@ export function setProp<
   D extends BaseDom<any, any, any>,
   K extends keyof D["props"],
 >(node: D, key: K, value: D["props"][K]): void {
-  node.props[key] = value
+  if (node.props[key] !== value) {
+    markDirty(node)
+    node.props[key] = value
+  }
 }
 
 export function getProp<D extends BaseDom<any, any, any>, R = any>(
@@ -267,11 +270,26 @@ export function getParentNode<D extends BaseDom<any, any, any>>(
   return node.parentNode as D
 }
 
+function isAutoSize<D extends BaseDom<any, any, any>>(node: D): boolean {
+  return (
+    node.attributes.height === "auto" ||
+    node.attributes.width === "auto" ||
+    node.attributes.height === undefined ||
+    node.attributes.width === undefined
+  )
+}
+
+function isAbsolute<D extends BaseDom<any, any, any>>(node: D): boolean {
+  return node.attributes.position === "absolute"
+}
+
 export function markDirty<D extends BaseDom<any, any, any>>(node: D): void {
   node.dirty = true
-  if (node.attributes.position !== "absolute") {
-    while ((node = node.parentNode as D)) {
+  while ((node = node.parentNode as D)) {
+    if (isAutoSize(node) || !isAbsolute(node)) {
       node.dirty = true
+    } else {
+      return
     }
   }
 }
@@ -283,6 +301,9 @@ export function markClean<D extends BaseDom<any, any, any>>(node: D): void {
 export function isDirty<D extends BaseDom<any, any, any>>(node: D): boolean {
   while (node) {
     if (node.dirty) return true
+    if (isAbsolute(node) || !isAutoSize(node)) {
+      return node.dirty
+    }
     node = node.parentNode as D
   }
   return false

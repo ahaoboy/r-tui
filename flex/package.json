@@ -1,7 +1,7 @@
 {
   "name": "@r-tui/flex",
-  "version": "0.1.9",
-  "description": "",
+  "version": "0.1.10",
+  "description": "@r-tui/flex",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
   "scripts": {

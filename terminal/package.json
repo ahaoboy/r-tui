@@ -1,7 +1,7 @@
 {
   "name": "@r-tui/terminal",
   "version": "0.1.7",
-  "description": "",
+  "description": "@r-tui/terminal",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
   "scripts": {
