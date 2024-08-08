@@ -166,9 +166,11 @@ export function render(
   let lastH = 0
   function renderRootNode() {
     const { width, height } = flex.canvas.shape
+    if (width === lastW && height === lastH) {
+      return
+    }
     lastW = width
     lastH = height
-
     setAttribute(flex.rootNode, "id", RootName)
     setAttribute(flex.rootNode, "width", width)
     setAttribute(flex.rootNode, "height", height)

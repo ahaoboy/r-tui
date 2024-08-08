@@ -55,7 +55,6 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
     drawNode(this.canvas, node, x | 0, y | 0)
   }
   fps = 0
-  trim = false
   canvas: Canvas
   write: (s: string) => void
   shape: Shape
@@ -63,7 +62,6 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
     super()
     const {
       fps = DefaultFPS,
-      trim = false,
       shape = getTerminalShape(),
       write = (s) => {
         console.clear()
@@ -71,7 +69,6 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
       },
     } = config
     this.fps = fps
-    this.trim = trim
     this.shape = shape
     this.canvas = new Canvas(shape)
     this.write = write
@@ -103,8 +100,11 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   renderToConsole: () => void = throttle(
     () => {
       this.canvas.clear()
+      // const t1 = Date.now()
       this.renderRoot()
-      const s = this.canvas.toAnsi(this.trim)
+      // const t2 = Date.now()
+      const s = this.canvas.toAnsi()
+      // console.log('renderToConsole: ', s.length, t2 - t1, this.canvas.shape)
       this.write(s)
     },
     1000 / DefaultFPS,
