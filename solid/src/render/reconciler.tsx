@@ -42,7 +42,7 @@ const {
     setAttribute(textNode, "text", value)
     flex.renderToConsole()
   },
-  setProperty(node: TDom, name: string, value: any) {
+  setProperty(node: TDom, name: keyof TDom["attributes"], value: any) {
     setAttribute(node, name, value)
     flex.renderToConsole()
   },

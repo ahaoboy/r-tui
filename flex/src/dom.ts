@@ -158,7 +158,7 @@ export interface BaseDom<
 
 export type DOMNodeAttribute = boolean | string | number
 
-export function appendChildNode<D extends BaseDom>(
+export function appendChildNode<D extends BaseDom<any, any, any>>(
   node: D,
   childNode: D,
 ): void {
@@ -172,7 +172,7 @@ export function appendChildNode<D extends BaseDom>(
   node.childNodes.push(childNode)
 }
 
-export function insertBeforeNode<D extends BaseDom>(
+export function insertBeforeNode<D extends BaseDom<any, any, any>>(
   parent: D,
   node: D,
   anchor: D,
@@ -193,7 +193,7 @@ export function insertBeforeNode<D extends BaseDom>(
   parent.childNodes.push(node)
 }
 
-export function removeChildNode<D extends BaseDom>(
+export function removeChildNode<D extends BaseDom<any, any, any>>(
   node: D,
   removeNode: D,
 ): void {
@@ -206,50 +206,48 @@ export function removeChildNode<D extends BaseDom>(
   }
 }
 
-export function setAttribute<D extends BaseDom>(
-  node: D,
-  key: string,
-  value: any,
-): void {
-  // @ts-ignore
+export function setAttribute<
+  D extends BaseDom<any, any, any>,
+  K extends keyof D["attributes"],
+>(node: D, key: K, value: D["attributes"][K]): void {
   if (node.attributes[key] !== value) {
     markDirty(node)
   }
-  // @ts-ignore
   node.attributes[key] = value
 }
 
 export function setLayoutNode<
-  D extends BaseDom,
+  D extends BaseDom<any, any, any>,
   K extends keyof D["layoutNode"],
 >(node: D, key: K, value: D["layoutNode"][K]): void {
   // @ts-ignore
   node.layoutNode[key] = value
 }
 
-export function getAttribute<D extends BaseDom, R = any>(
+export function getAttribute<D extends BaseDom<any, any, any>, R = any>(
   node: D,
   key: string,
-): R {
-  // @ts-ignore
+): R | undefined {
   return node.attributes[key] as any
 }
 
-export function setProp<D extends BaseDom>(
-  node: D,
-  key: string,
-  value: any,
-): void {
-  // @ts-ignore
+export function setProp<
+  D extends BaseDom<any, any, any>,
+  K extends keyof D["props"],
+>(node: D, key: K, value: D["props"][K]): void {
   node.props[key] = value
 }
 
-export function getProp<D extends BaseDom, R = any>(node: D, key: string): R {
-  // @ts-ignore
+export function getProp<D extends BaseDom<any, any, any>, R = any>(
+  node: D,
+  key: string,
+): R | undefined {
   return node.props[key] as any
 }
 
-export function getNextSibling<D extends BaseDom>(node: D): D | undefined {
+export function getNextSibling<D extends BaseDom<any, any, any>>(
+  node: D,
+): D | undefined {
   if (!node || !node.parentNode) return
   const childNodes = node.parentNode.childNodes
   const i = childNodes.indexOf(node)
@@ -257,15 +255,19 @@ export function getNextSibling<D extends BaseDom>(node: D): D | undefined {
   return childNodes[i + 1] as D
 }
 
-export function getFirstChild<D extends BaseDom>(node: D): D | undefined {
+export function getFirstChild<D extends BaseDom<any, any, any>>(
+  node: D,
+): D | undefined {
   return node.childNodes[0] as D
 }
 
-export function getParentNode<D extends BaseDom>(node: D): D | undefined {
+export function getParentNode<D extends BaseDom<any, any, any>>(
+  node: D,
+): D | undefined {
   return node.parentNode as D
 }
 
-export function markDirty<D extends BaseDom>(node: D): void {
+export function markDirty<D extends BaseDom<any, any, any>>(node: D): void {
   node.dirty = true
   if (node.attributes.position !== "absolute") {
     while ((node = node.parentNode as D)) {
@@ -274,11 +276,11 @@ export function markDirty<D extends BaseDom>(node: D): void {
   }
 }
 
-export function markClean<D extends BaseDom>(node: D): void {
+export function markClean<D extends BaseDom<any, any, any>>(node: D): void {
   node.dirty = false
 }
 
-export function isDirty<D extends BaseDom>(node: D): boolean {
+export function isDirty<D extends BaseDom<any, any, any>>(node: D): boolean {
   while (node) {
     if (node.dirty) return true
     node = node.parentNode as D

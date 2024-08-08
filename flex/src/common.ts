@@ -1,5 +1,5 @@
-import { type BaseDom, setAttribute } from "./dom"
-export const propsToSkip = {
+import { type BaseDom, setAttribute, setProp } from "./dom"
+export const attributesToSkip = {
   children: true,
   ref: true,
   key: true,
@@ -21,9 +21,21 @@ export function readAttr(node: BaseDom<any, any, any>, attrName: string) {
   return node.attributes[attrName]
 }
 
-export function applyProps<D extends BaseDom>(node: D, props: any) {
+export function applyAttributes<
+  D extends BaseDom<any, any, any>,
+  K extends keyof D["attributes"],
+>(node: D, attributes: Record<K, any>) {
+  for (const name in attributes) {
+    if (!attributesToSkip[name as keyof typeof attributesToSkip])
+      setAttribute(node, name, attributes[name])
+  }
+}
+
+export function applyProps<
+  D extends BaseDom<any, any, any>,
+  K extends keyof D["props"],
+>(node: D, props: Record<K, any>) {
   for (const name in props) {
-    if (!propsToSkip[name as keyof typeof propsToSkip])
-      setAttribute(node, name, props[name])
+    setProp(node, name, props[name])
   }
 }

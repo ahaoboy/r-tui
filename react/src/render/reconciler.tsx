@@ -2,12 +2,12 @@ import createReconciler from "react-reconciler"
 import { DefaultEventPriority } from "react-reconciler/constants"
 import {
   appendChildNode,
+  applyAttributes,
   insertBeforeNode,
   removeChildNode,
   setAttribute,
   setLayoutNode,
 } from "@r-tui/flex"
-import { applyProps } from "@r-tui/flex"
 const NO_CONTEXT = {}
 import { RenderConfig, RootName, TDom, TFlex, createTDom } from "@r-tui/rflex"
 
@@ -20,8 +20,8 @@ export function createCustomReconciler(flex: TFlex) {
       flex.renderToConsole()
     },
     insertInContainerBefore: insertBeforeNode,
-    commitUpdate(node: TDom, props) {
-      applyProps(node, props)
+    commitUpdate(node: TDom, props: any) {
+      applyAttributes(node, props)
       flex.renderToConsole()
     },
     commitTextUpdate(node, _oldText, newText) {
@@ -34,13 +34,13 @@ export function createCustomReconciler(flex: TFlex) {
     },
     createInstance: (
       originalType: unknown,
-      props: unknown,
+      props: any,
       rootContainer: unknown,
       hostContext: unknown,
       internalHandle: any,
     ): unknown => {
       const node = createTDom()
-      applyProps(node, props)
+      applyAttributes(node, props)
       return node
     },
     createTextInstance: (
