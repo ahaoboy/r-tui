@@ -24,7 +24,6 @@ export interface TDom extends BaseDom<TDomAttrs, TDomProps, {}> {}
 export type RenderConfig = {
   enableMouseMoveEvent: boolean
   fps: number
-  trim: boolean
   shape: Shape
   write: (s: string) => void
 }

@@ -1,5 +1,5 @@
 import { build } from "esbuild"
-import { solidPlugin } from "./esbuild-plugin-solid"
+import { solidPlugin } from "esbuild-plugin-solid"
 
 build({
   entryPoints: ["./test/*.tsx"],
