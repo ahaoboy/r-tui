@@ -1,6 +1,6 @@
 {
   "name": "@r-tui/react",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
@@ -17,7 +17,7 @@
     }
   },
   "scripts": {
-    "bundle": "esbuild ./src/examples/*.tsx --bundle --outdir=bundle --platform=node --format=iife",
+    "bundle": "tsx ./build.ts",
     "build": "tsc -p ./tsconfig.build.json",
     "dev": "tsc -p ./tsconfig.build.json -w",
     "test": "vitest"

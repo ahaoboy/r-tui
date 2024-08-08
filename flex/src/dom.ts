@@ -162,6 +162,8 @@ export function appendChildNode<D extends BaseDom>(
   node: D,
   childNode: D,
 ): void {
+  markDirty(childNode)
+
   if (childNode.parentNode) {
     removeChildNode(childNode.parentNode, childNode)
   }
@@ -175,6 +177,7 @@ export function insertBeforeNode<D extends BaseDom>(
   node: D,
   anchor: D,
 ): void {
+  markDirty(node)
   if (node.parentNode) {
     removeChildNode(node.parentNode, node)
   }
@@ -194,6 +197,7 @@ export function removeChildNode<D extends BaseDom>(
   node: D,
   removeNode: D,
 ): void {
+  markDirty(removeNode)
   removeNode.parentNode = undefined
 
   const index = node.childNodes.indexOf(removeNode)
@@ -207,6 +211,10 @@ export function setAttribute<D extends BaseDom>(
   key: string,
   value: any,
 ): void {
+  // @ts-ignore
+  if (node.attributes[key] !== value) {
+    markDirty(node)
+  }
   // @ts-ignore
   node.attributes[key] = value
 }
@@ -259,8 +267,21 @@ export function getParentNode<D extends BaseDom>(node: D): D | undefined {
 
 export function markDirty<D extends BaseDom>(node: D): void {
   node.dirty = true
+  if (node.attributes.position !== "absolute") {
+    while ((node = node.parentNode as D)) {
+      node.dirty = true
+    }
+  }
 }
 
 export function markClean<D extends BaseDom>(node: D): void {
   node.dirty = false
+}
+
+export function isDirty<D extends BaseDom>(node: D): boolean {
+  while (node) {
+    if (node.dirty) return true
+    node = node.parentNode as D
+  }
+  return false
 }

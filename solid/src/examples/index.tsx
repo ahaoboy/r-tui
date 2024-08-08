@@ -29,11 +29,3 @@ export const Example = {
   Snake,
   Ls,
 }
-
-// import { render, } from "@r-tui/solid"
-
-// render(() => <FillBox />, {
-//   // write: (s) => {
-//     // console.log(s.trimEnd())
-//   // },
-// })

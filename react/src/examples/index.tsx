@@ -19,7 +19,3 @@ export const Example = {
   Echo,
   FillBox,
 }
-
-// import React from "react"
-// import { render } from "../render"
-// render(<FillBox />, { trim: true })

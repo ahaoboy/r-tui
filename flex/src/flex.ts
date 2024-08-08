@@ -1,4 +1,10 @@
-import { BaseDom, BaseMouseEvent, EventName, EventNameList } from "./dom"
+import {
+  BaseDom,
+  BaseMouseEvent,
+  EventName,
+  EventNameList,
+  isDirty,
+} from "./dom"
 import {
   Rect,
   type Shape,
@@ -260,6 +266,13 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
   }
 
   private computeNodeSize(node: BaseDom<A, P, E>) {
+    // console.log('computeNodeSize',node.attributes.id, node.dirty)
+    if (!isDirty(node)) {
+      for (const c of node.childNodes) {
+        this.computeNodeSize(c)
+      }
+      return
+    }
     const { attributes, layoutNode } = node
 
     const isX = attributes.flexDirection !== "row"
@@ -818,6 +831,13 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
     throw new Error(`not support flex align: ${justifyContent} ${alignItems}`)
   }
   private computeNodeLayout(node: BaseDom<A, P, E>) {
+    if (!isDirty(node)) {
+      for (const c of node.childNodes) {
+        this.computeNodeLayout(c)
+      }
+      return
+    }
+
     const { layoutNode, attributes } = node
 
     if (hasTLBR(node)) {
