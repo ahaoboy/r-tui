@@ -10,17 +10,6 @@ export const attributesToSkip = {
   className: true,
 }
 
-export function readAttr(node: BaseDom<any, any, any>, attrName: string) {
-  while (node && typeof node.attributes[attrName] === "undefined") {
-    if (node.parentNode) {
-      node = node.parentNode
-    } else {
-      return undefined
-    }
-  }
-  return node.attributes[attrName]
-}
-
 export function applyAttributes<
   D extends BaseDom<any, any, any>,
   K extends keyof D["attributes"],

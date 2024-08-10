@@ -149,8 +149,8 @@ export interface BaseDom<
       onFocus?: (e: BaseMouseEvent<A, P, E>) => void
     } & A
   >
-  childNodes: BaseDom<A, P, E>[]
-  parentNode: BaseDom<A, P, E> | undefined
+  childNodes: this[]
+  parentNode: this | undefined
   layoutNode: LayoutNode
   dirty: boolean
   props: P
@@ -162,9 +162,11 @@ export function appendChildNode<D extends BaseDom<any, any, any>>(
   node: D,
   childNode: D,
 ): void {
+  markDirty(node)
   markDirty(childNode)
 
   if (childNode.parentNode) {
+    markDirty(childNode.parentNode)
     removeChildNode(childNode.parentNode, childNode)
   }
 
@@ -177,8 +179,11 @@ export function insertBeforeNode<D extends BaseDom<any, any, any>>(
   node: D,
   anchor: D,
 ): void {
+  markDirty(parent)
   markDirty(node)
+
   if (node.parentNode) {
+    markDirty(node.parentNode)
     removeChildNode(node.parentNode, node)
   }
 
@@ -198,6 +203,7 @@ export function removeChildNode<D extends BaseDom<any, any, any>>(
   removeNode: D,
 ): void {
   markDirty(removeNode)
+  markDirty(node)
   removeNode.parentNode = undefined
 
   const index = node.childNodes.indexOf(removeNode)
@@ -206,12 +212,18 @@ export function removeChildNode<D extends BaseDom<any, any, any>>(
   }
 }
 
+function isFunction(v: any): boolean {
+  return typeof v === "function"
+}
+
 export function setAttribute<
   D extends BaseDom<any, any, any>,
   K extends keyof D["attributes"],
 >(node: D, key: K, value: D["attributes"][K]): void {
   if (node.attributes[key] !== value) {
-    markDirty(node)
+    if (!isFunction(value)) {
+      markDirty(node)
+    }
     node.attributes[key] = value
   }
 }
@@ -224,11 +236,12 @@ export function setLayoutNode<
   node.layoutNode[key] = value
 }
 
-export function getAttribute<D extends BaseDom<any, any, any>, R = any>(
-  node: D,
-  key: string,
-): R | undefined {
-  return node.attributes[key] as any
+export function getAttribute<
+  D extends BaseDom<any, any, any>,
+  K extends keyof D["attributes"],
+  R = any,
+>(node: D, key: K): R | undefined {
+  return node.attributes[key]
 }
 
 export function setProp<
@@ -236,16 +249,19 @@ export function setProp<
   K extends keyof D["props"],
 >(node: D, key: K, value: D["props"][K]): void {
   if (node.props[key] !== value) {
-    markDirty(node)
+    if (!isFunction(value)) {
+      markDirty(node)
+    }
     node.props[key] = value
   }
 }
 
-export function getProp<D extends BaseDom<any, any, any>, R = any>(
-  node: D,
-  key: string,
-): R | undefined {
-  return node.props[key] as any
+export function getProp<
+  D extends BaseDom<any, any, any>,
+  K extends keyof D["props"],
+  R = any,
+>(node: D, key: K): R | undefined {
+  return node.props[key]
 }
 
 export function getNextSibling<D extends BaseDom<any, any, any>>(
@@ -255,19 +271,19 @@ export function getNextSibling<D extends BaseDom<any, any, any>>(
   const childNodes = node.parentNode.childNodes
   const i = childNodes.indexOf(node)
   if (i < 0 || i >= childNodes.length) return
-  return childNodes[i + 1] as D
+  return childNodes[i + 1]
 }
 
 export function getFirstChild<D extends BaseDom<any, any, any>>(
   node: D,
 ): D | undefined {
-  return node.childNodes[0] as D
+  return node.childNodes[0]
 }
 
 export function getParentNode<D extends BaseDom<any, any, any>>(
   node: D,
 ): D | undefined {
-  return node.parentNode as D
+  return node.parentNode
 }
 
 function isAutoSize<D extends BaseDom<any, any, any>>(node: D): boolean {
@@ -285,8 +301,8 @@ function isAbsolute<D extends BaseDom<any, any, any>>(node: D): boolean {
 
 export function markDirty<D extends BaseDom<any, any, any>>(node: D): void {
   node.dirty = true
-  while ((node = node.parentNode as D)) {
-    if (isAutoSize(node) || !isAbsolute(node)) {
+  while (!isAbsolute(node) && node.parentNode && (node = node.parentNode)) {
+    if (isAutoSize(node)) {
       node.dirty = true
     } else {
       return
@@ -298,13 +314,42 @@ export function markClean<D extends BaseDom<any, any, any>>(node: D): void {
   node.dirty = false
 }
 
-export function isDirty<D extends BaseDom<any, any, any>>(node: D): boolean {
+export function isDirty<D extends BaseDom<any, any, any>>(
+  node: D | undefined,
+): boolean {
   while (node) {
     if (node.dirty) return true
-    if (isAbsolute(node) || !isAutoSize(node)) {
-      return node.dirty
-    }
-    node = node.parentNode as D
+    node = node.parentNode
   }
   return false
+}
+
+export function getFirstValidAttribute<
+  D extends BaseDom<any, any, any>,
+  K extends keyof D["attributes"],
+  R = any,
+>(node: D, attrName: K): R | undefined {
+  while (node && typeof getAttribute(node, attrName) === "undefined") {
+    if (node.parentNode) {
+      node = node.parentNode
+    } else {
+      return undefined
+    }
+  }
+  return getAttribute(node, attrName)
+}
+
+export function getFirstValidProp<
+  D extends BaseDom<any, any, any>,
+  K extends keyof D["attributes"],
+  R = any,
+>(node: D, propName: K): R | undefined {
+  while (node && typeof getProp(node, propName) === "undefined") {
+    if (node.parentNode) {
+      node = node.parentNode
+    } else {
+      return undefined
+    }
+  }
+  return getProp(node, propName)
 }

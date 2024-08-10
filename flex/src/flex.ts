@@ -116,10 +116,8 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
 
   renderRoot() {
     // const t1 = +Date.now()
-    // The root node must have a certain size
-    for (const c of this.rootNode.childNodes) {
-      this.computeNodeSize(c)
-    }
+    this.computeNodeSize(this.rootNode)
+
     // const t2 = +Date.now()
     this.computeNodeLayout(this.rootNode)
     // const t3 = +Date.now()
@@ -266,7 +264,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
   }
 
   private computeNodeSize(node: BaseDom<A, P, E>) {
-    // console.log('computeNodeSize',node.attributes.id, isDirty(node))
+    // console.log('computeNodeSize', node.attributes.id, node.dirty, isDirty(node))
     if (!isDirty(node)) {
       for (const c of node.childNodes) {
         this.computeNodeSize(c)
@@ -297,12 +295,6 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
 
     if (typeof attributes.text === "string") {
       const { width, height } = this.customMeasureNode(node)
-      // layoutNode.textRect = new Rect(
-      //   layoutNode.textRect.x,
-      //   layoutNode.textRect.y,
-      //   width,
-      //   height,
-      // )
 
       layoutNode.width = xIsAuto
         ? extraSize + width
@@ -831,6 +823,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
     throw new Error(`not support flex align: ${justifyContent} ${alignItems}`)
   }
   private computeNodeLayout(node: BaseDom<A, P, E>) {
+    // console.log('computeNodeLayout', node.attributes.id, node.dirty, isDirty(node))
     if (!isDirty(node)) {
       for (const c of node.childNodes) {
         this.computeNodeLayout(c)

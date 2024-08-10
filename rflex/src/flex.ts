@@ -22,10 +22,11 @@ export interface TDomProps {
 export interface TDom extends BaseDom<TDomAttrs, TDomProps, {}> {}
 
 export type RenderConfig = {
-  enableMouseMoveEvent: boolean
   fps: number
   shape: Shape
   write: (s: string) => void
+  beforeRenderRoot: (node: BaseDom<TDomAttrs, TDomProps, {}>) => void
+  afterRenderRoot: (node: BaseDom<TDomAttrs, TDomProps, {}>) => void
 }
 
 export function createTDom(nodeName = BoxName): TDom {
@@ -57,6 +58,8 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   canvas: Canvas
   write: (s: string) => void
   shape: Shape
+  beforeRenderRoot?: (node: BaseDom<TDomAttrs, TDomProps, {}>) => void
+  afterRenderRoot?: (node: BaseDom<TDomAttrs, TDomProps, {}>) => void
   constructor(config: Partial<RenderConfig> = {}) {
     super()
     const {
@@ -66,11 +69,15 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
         console.clear()
         process.stdout.write(s)
       },
+      beforeRenderRoot,
+      afterRenderRoot,
     } = config
     this.fps = fps
     this.shape = shape
     this.canvas = new Canvas(shape)
     this.write = write
+    this.beforeRenderRoot = beforeRenderRoot
+    this.afterRenderRoot = afterRenderRoot
   }
   customCreateMouseEvent(
     node: BaseDom<TDomAttrs, TDomProps, {}> | undefined,
@@ -98,9 +105,10 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   }
   renderToConsole: () => void = throttle(
     () => {
-      this.canvas.clear()
       // const t1 = Date.now()
+      this.beforeRenderRoot?.(this.rootNode)
       this.renderRoot()
+      this.afterRenderRoot?.(this.rootNode)
       // const t2 = Date.now()
       const s = this.canvas.toAnsi()
       // console.log('renderToConsole: ', s.length, t2 - t1, this.canvas.shape)
