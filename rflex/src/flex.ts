@@ -1,5 +1,5 @@
 import { Canvas } from "@r-tui/canvas"
-import { type BaseDom, Flex, LayoutNode, BaseMouseEvent } from "@r-tui/flex"
+import { type BaseDom, Flex, LayoutNode, BaseMouseEvent, markClean } from "@r-tui/flex"
 import { Color, getStringShape, type Shape } from "@r-tui/share"
 import { drawNode } from "./canvas"
 import throttle from "lodash-es/throttle"
@@ -55,6 +55,7 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
     }
     const { x, y } = node.layoutNode
     drawNode(this.canvas, node, x | 0, y | 0)
+    markClean(node)
   }
   fps = 0
   canvas: Canvas
