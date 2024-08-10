@@ -16,6 +16,7 @@ import {
 } from "@r-tui/rflex"
 import { createRenderer } from "solid-js/universal"
 import { TDom } from "@r-tui/rflex"
+import { batch } from "solid-js/types/server/reactive.js"
 
 let flex: TFlex
 
@@ -80,8 +81,6 @@ export {
   ErrorBoundary,
 } from "solid-js"
 
-export const defaultFPS = 30
-
 function render(code: () => any, config: Partial<RenderConfig> = {}) {
   flex = new TFlex(config)
   let lastW = 0
@@ -93,27 +92,33 @@ function render(code: () => any, config: Partial<RenderConfig> = {}) {
     }
     lastW = width
     lastH = height
-    setAttribute(flex.rootNode, "id", RootName)
-    setAttribute(flex.rootNode, "width", width)
-    setAttribute(flex.rootNode, "height", height)
-    setAttribute(flex.rootNode, "position", "relative")
-    setAttribute(flex.rootNode, "color", undefined)
-    setAttribute(flex.rootNode, "backgroundColor", undefined)
-    setAttribute(flex.rootNode, "display", "flex")
-    setAttribute(flex.rootNode, "padding", 0)
-    setAttribute(flex.rootNode, "borderSize", 0)
-    setAttribute(flex.rootNode, "x", 0)
-    setAttribute(flex.rootNode, "y", 0)
-    setAttribute(flex.rootNode, "zIndex", 0)
 
-    setLayoutNode(flex.rootNode, "x", 0)
-    setLayoutNode(flex.rootNode, "y", 0)
-    setLayoutNode(flex.rootNode, "width", width)
-    setLayoutNode(flex.rootNode, "height", height)
-    setLayoutNode(flex.rootNode, "padding", 0)
-    setLayoutNode(flex.rootNode, "border", 0)
+    batch(() => {
+      setAttribute(flex.rootNode, "id", RootName)
+      setAttribute(flex.rootNode, "width", width)
+      setAttribute(flex.rootNode, "height", height)
+      setAttribute(flex.rootNode, "position", "relative")
+      setAttribute(flex.rootNode, "color", undefined)
+      setAttribute(flex.rootNode, "backgroundColor", undefined)
+      setAttribute(flex.rootNode, "display", "flex")
+      setAttribute(flex.rootNode, "padding", 0)
+      setAttribute(flex.rootNode, "borderSize", 0)
+      setAttribute(flex.rootNode, "x", 0)
+      setAttribute(flex.rootNode, "y", 0)
+      setAttribute(flex.rootNode, "zIndex", 0)
+
+      setLayoutNode(flex.rootNode, "x", 0)
+      setLayoutNode(flex.rootNode, "y", 0)
+      setLayoutNode(flex.rootNode, "width", width)
+      setLayoutNode(flex.rootNode, "height", height)
+      setLayoutNode(flex.rootNode, "padding", 0)
+      setLayoutNode(flex.rootNode, "border", 0)
+    })
     flex.renderToConsole()
   }
+
+  flex.rootNode.attributes.width = config.shape?.width || 0
+  flex.rootNode.attributes.height = config.shape?.height || 0
 
   renderRootNode()
   _render(code, flex.rootNode)

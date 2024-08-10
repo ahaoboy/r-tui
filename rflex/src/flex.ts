@@ -27,6 +27,8 @@ export type RenderConfig = {
   write: (s: string) => void
   beforeRenderRoot: (node: BaseDom<TDomAttrs, TDomProps, {}>) => void
   afterRenderRoot: (node: BaseDom<TDomAttrs, TDomProps, {}>) => void
+  trailing: boolean
+  leading: boolean
 }
 
 export function createTDom(nodeName = BoxName): TDom {
@@ -60,6 +62,8 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   shape: Shape
   beforeRenderRoot?: (node: BaseDom<TDomAttrs, TDomProps, {}>) => void
   afterRenderRoot?: (node: BaseDom<TDomAttrs, TDomProps, {}>) => void
+  renderToConsole: () => void
+
   constructor(config: Partial<RenderConfig> = {}) {
     super()
     const {
@@ -71,6 +75,8 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
       },
       beforeRenderRoot,
       afterRenderRoot,
+      trailing = true,
+      leading = true,
     } = config
     this.fps = fps
     this.shape = shape
@@ -78,6 +84,23 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
     this.write = write
     this.beforeRenderRoot = beforeRenderRoot
     this.afterRenderRoot = afterRenderRoot
+    this.renderToConsole = throttle(
+      () => {
+        // const t1 = Date.now()
+        this.beforeRenderRoot?.(this.rootNode)
+        this.renderRoot()
+        this.afterRenderRoot?.(this.rootNode)
+        // const t2 = Date.now()
+        const s = this.canvas.toAnsi()
+        // console.log('renderToConsole: ', s.length, t2 - t1, this.canvas.shape)
+        this.write(s)
+      },
+      1000 / fps,
+      {
+        trailing,
+        leading,
+      },
+    )
   }
   customCreateMouseEvent(
     node: BaseDom<TDomAttrs, TDomProps, {}> | undefined,
@@ -103,23 +126,6 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
   customIsMouseUp(e: BaseMouseEvent<TDomAttrs, TDomProps, {}>): boolean {
     throw new Error("Method not implemented.")
   }
-  renderToConsole: () => void = throttle(
-    () => {
-      // const t1 = Date.now()
-      this.beforeRenderRoot?.(this.rootNode)
-      this.renderRoot()
-      this.afterRenderRoot?.(this.rootNode)
-      // const t2 = Date.now()
-      const s = this.canvas.toAnsi()
-      // console.log('renderToConsole: ', s.length, t2 - t1, this.canvas.shape)
-      this.write(s)
-    },
-    1000 / DefaultFPS,
-    {
-      trailing: true,
-      leading: true,
-    },
-  )
   customIsRootNode(node: TDom): boolean {
     return node.props?.nodeName === RootName
   }
