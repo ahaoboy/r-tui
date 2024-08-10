@@ -341,7 +341,7 @@ export function getFirstValidAttribute<
 
 export function getFirstValidProp<
   D extends BaseDom<any, any, any>,
-  K extends keyof D["attributes"],
+  K extends keyof D["props"],
   R = any,
 >(node: D, propName: K): R | undefined {
   while (node && typeof getProp(node, propName) === "undefined") {
