@@ -5,6 +5,29 @@ import {
   type Theme,
   type Shape,
 } from "@r-tui/share"
+import { Rgb } from "e-color/dist"
+
+function getAnsiColor(colorName: string | undefined, isBg: boolean): string {
+  const colors: Record<string, number> = isBg ? AnsiBgColor : AnsiColor
+
+  if (!colorName) {
+    return (`\x1b[${colors["default"]}m`)
+  }
+
+  if (colors[colorName]) {
+    return (`\x1b[${colors[colorName]}m`)
+  }
+
+  if (colorName.startsWith("#") && colorName.length === 7) {
+    const r = parseInt(colorName.slice(1, 3), 16)
+    const g = parseInt(colorName.slice(3, 5), 16)
+    const b = parseInt(colorName.slice(5, 7), 16)
+    const prefix = isBg ? 48 : 38
+    return `\x1b[${prefix};2;${r};${g};${b}m`
+  }
+
+  throw new Error(`not support color: ${colorName}`)
+}
 
 export class Pixel {
   constructor(
@@ -15,23 +38,24 @@ export class Pixel {
     public color?: Color,
     public backgroundColor?: Color,
     public bold = false,
-  ) {}
+  ) { }
 
   toAnsi(): string {
-    let s = ""
+    const s: string[] = []
     if (
       !this.char.length &&
       (this.backgroundColor === "default" || this.backgroundColor === undefined)
     ) {
-      return s
+      return ''
     }
 
-    s += `\x1b[${AnsiColor[this.color ?? "default"]}m`
-    s += `\x1b[${AnsiBgColor[this.backgroundColor ?? "default"]}m`
-    s += this.char
-    s += `\x1b[${AnsiColor.default}m`
-    s += `\x1b[${AnsiBgColor.default}m`
-    return s
+    s.push(getAnsiColor(this.color, false))
+    s.push(getAnsiColor(this.backgroundColor, true))
+
+    s.push(this.char)
+    s.push(`\x1b[${AnsiColor.default}m`)
+    s.push(`\x1b[${AnsiBgColor.default}m`)
+    return s.join('')
   }
 }
 
@@ -85,5 +109,5 @@ export class Canvas {
     return s
   }
 
-  toHtml(theme: Theme = "vscode") {}
+  toHtml(theme: Theme = "vscode") { }
 }

@@ -59,4 +59,4 @@ export const AnsiBgColor = {
   default: 49,
 }
 // export const DefaultColor = 39
-export type Color = keyof typeof AnsiColor
+export type Color = keyof typeof AnsiColor | (string & Object)

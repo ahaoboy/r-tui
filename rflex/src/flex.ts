@@ -11,7 +11,7 @@ export const RootName = "@r-tui/root"
 export const TextName = "@r-tui/text"
 
 export interface TDomAttrs {
-  color?: Color
+  color?: Color | (string & Object)
   backgroundColor?: Color
 }
 
@@ -77,7 +77,7 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
       beforeRenderRoot,
       afterRenderRoot,
       trailing = true,
-      leading = true,
+      leading = false,
     } = config
     this.fps = fps
     this.shape = shape
