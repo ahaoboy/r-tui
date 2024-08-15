@@ -1,5 +1,11 @@
 import { Canvas } from "@r-tui/canvas"
-import { type BaseDom, Flex, LayoutNode, BaseMouseEvent, markClean } from "@r-tui/flex"
+import {
+  type BaseDom,
+  Flex,
+  LayoutNode,
+  BaseMouseEvent,
+  markClean,
+} from "@r-tui/flex"
 import { Color, getStringShape, type Shape } from "@r-tui/share"
 import { drawNode } from "./canvas"
 import throttle from "lodash-es/throttle"

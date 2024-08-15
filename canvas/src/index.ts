@@ -11,17 +11,17 @@ function getAnsiColor(colorName: string | undefined, isBg: boolean): string {
   const colors: Record<string, number> = isBg ? AnsiBgColor : AnsiColor
 
   if (!colorName) {
-    return (`\x1b[${colors["default"]}m`)
+    return `\x1b[${colors.default}m`
   }
 
   if (colors[colorName]) {
-    return (`\x1b[${colors[colorName]}m`)
+    return `\x1b[${colors[colorName]}m`
   }
 
   if (colorName.startsWith("#") && colorName.length === 7) {
-    const r = parseInt(colorName.slice(1, 3), 16)
-    const g = parseInt(colorName.slice(3, 5), 16)
-    const b = parseInt(colorName.slice(5, 7), 16)
+    const r = Number.parseInt(colorName.slice(1, 3), 16)
+    const g = Number.parseInt(colorName.slice(3, 5), 16)
+    const b = Number.parseInt(colorName.slice(5, 7), 16)
     const prefix = isBg ? 48 : 38
     return `\x1b[${prefix};2;${r};${g};${b}m`
   }
@@ -38,7 +38,7 @@ export class Pixel {
     public color?: Color,
     public backgroundColor?: Color,
     public bold = false,
-  ) { }
+  ) {}
 
   toAnsi(): string {
     const s: string[] = []
@@ -46,7 +46,7 @@ export class Pixel {
       !this.char.length &&
       (this.backgroundColor === "default" || this.backgroundColor === undefined)
     ) {
-      return ''
+      return ""
     }
 
     s.push(getAnsiColor(this.color, false))
@@ -55,7 +55,7 @@ export class Pixel {
     s.push(this.char)
     s.push(`\x1b[${AnsiColor.default}m`)
     s.push(`\x1b[${AnsiBgColor.default}m`)
-    return s.join('')
+    return s.join("")
   }
 }
 
@@ -109,5 +109,5 @@ export class Canvas {
     return s
   }
 
-  toHtml(theme: Theme = "vscode") { }
+  toHtml(theme: Theme = "vscode") {}
 }

@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Box } from '../'
-import { getTerminalShape } from '@r-tui/terminal'
+import React, { useEffect, useRef, useState } from "react"
+import { Box } from "../"
+import { getTerminalShape } from "@r-tui/terminal"
 
-const CHARS = "ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍｦｲｸｺｿﾁﾄﾉﾌﾔﾖﾙﾚﾛﾝ012345789Z:.\"=*+-<>¦╌ç";
-
+const CHARS =
+  'ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍｦｲｸｺｿﾁﾄﾉﾌﾔﾖﾙﾚﾛﾝ012345789Z:."=*+-<>¦╌ç'
 
 function randomInt(n: number) {
   return (Math.random() * n) | 0
@@ -26,14 +26,16 @@ const LIVE_COLOR = [
   "#00FF00",
 ]
 
-export function Column({ height, id }: { id: number, height: number }) {
+export function Column({ height, id }: { id: number; height: number }) {
   const [y, setY] = useState(randomInt(height))
   const update = useRef<() => void>()
   const handle = useRef<number>(0)
-  const [history, setHistory] = useState<{
-    char: string,
-    live: number
-  }[]>([])
+  const [history, setHistory] = useState<
+    {
+      char: string
+      live: number
+    }[]
+  >([])
 
   function getColor(i: number) {
     return LIVE_COLOR[history[i]?.live || 0]
@@ -49,10 +51,16 @@ export function Column({ height, id }: { id: number, height: number }) {
       }
     }
     const c = choice(CHARS)
-
     let newY = (y + 1) % height
     if (Math.random() < 0.01) {
       newY = 0
+    }
+    if (newY === 0) {
+      const speed = (randomInt(5) + 1) * 30
+      clearInterval(handle.current)
+      handle.current = +setInterval(() => {
+        update.current?.()
+      }, speed)
     }
     setY(newY)
     history[newY] = { char: c, live: LIVE_COLOR.length - 1 }
@@ -66,22 +74,27 @@ export function Column({ height, id }: { id: number, height: number }) {
     }, speed)
   }, [])
 
-  return <Box
-    width={1}
-    height={height}
-    display='flex'
-    flexDirection='column'
-  >
-    {Array(height).fill(0).map((_, i) => <Box
-      backgroundColor='black'
-      color={getColor(i)}
-      key={i} text={getText(i)} />)}
-  </Box>
+  return (
+    <Box width={1} height={height} display="flex" flexDirection="column">
+      {Array(height)
+        .fill(0)
+        .map((_, i) => (
+          <Box
+            backgroundColor="black"
+            color={getColor(i)}
+            key={i}
+            text={getText(i)}
+          />
+        ))}
+    </Box>
+  )
 }
 
 export function Matrix() {
   const { width, height } = getTerminalShape()
-  return Array(width).fill(0).map((_, i) => <Column key={i} height={height} id={i} />)
+  return Array(width)
+    .fill(0)
+    .map((_, i) => <Column key={i} height={height} id={i} />)
 }
 
 export default Matrix
