@@ -5,7 +5,6 @@ import {
   type Theme,
   type Shape,
 } from "@r-tui/share"
-import { Rgb } from "e-color/dist"
 
 function getAnsiColor(colorName: string | undefined, isBg: boolean): string {
   const colors: Record<string, number> = isBg ? AnsiBgColor : AnsiColor
@@ -88,7 +87,7 @@ export class Canvas {
     return p
   }
 
-  toAnsi(): string {
+  toAnsi(newLine = true): string {
     const list: string[] = []
     const h = this.shape.height
     const w = this.shape.width
@@ -103,7 +102,7 @@ export class Canvas {
         list.push(p.toAnsi())
       }
       // list.push('\x1B[0G')
-      // list.push('\n')
+      if (newLine) list.push("\n")
     }
     const s = list.join("")
     return s

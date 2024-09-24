@@ -35,6 +35,7 @@ export type RenderConfig = {
   afterRenderRoot: (node: BaseDom<TDomAttrs, TDomProps, {}>) => void
   trailing: boolean
   leading: boolean
+  nweLine: boolean
 }
 
 export function createTDom(nodeName = BoxName): TDom {
@@ -84,6 +85,7 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
       afterRenderRoot,
       trailing = true,
       leading = false,
+      nweLine = true,
     } = config
     this.fps = fps
     this.shape = shape
@@ -98,7 +100,7 @@ export class TFlex extends Flex<TDomAttrs, TDomProps, {}> {
         this.renderRoot()
         this.afterRenderRoot?.(this.rootNode)
         // const t2 = Date.now()
-        const s = this.canvas.toAnsi()
+        const s = this.canvas.toAnsi(nweLine)
         // console.log('renderToConsole: ', s.length, t2 - t1, this.canvas.shape)
         this.write(s)
       },

@@ -1,6 +1,8 @@
 import { Shape } from "@r-tui/share"
-export function getTerminalShape(defaultShape = { width: 256, height: 128 }): Shape {
-  if (typeof process === 'undefined' || process.stdout?.columns === undefined) {
+export function getTerminalShape(
+  defaultShape = { width: 256, height: 128 },
+): Shape {
+  if (typeof process === "undefined" || process.stdout?.columns === undefined) {
     return defaultShape
   }
   const width = process.stdout.columns || 0
