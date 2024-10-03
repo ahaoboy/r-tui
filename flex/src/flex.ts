@@ -6,7 +6,6 @@ import {
   isDirty,
 } from "./dom"
 import {
-  Rect,
   type Shape,
   assert,
   isPercentage,
@@ -903,6 +902,7 @@ export abstract class Flex<A extends {}, P extends {}, E extends {} = {}> {
 
       if (nodes.length === 1) {
         nodes[0].attributes[name]?.(event)
+        continue
       }
 
       const sorted = nodes.sort(
